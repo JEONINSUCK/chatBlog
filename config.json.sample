@@ -1,0 +1,24 @@
+{
+    "AUTH" : {
+        "GPT3_API_KEY": "",
+        "GPT4_API_KEY": "",
+        "GOOGLE_API_KEY" : "",
+        "PYKAKAO_API_KEY" : "",
+        "TISTORY_APP_ID" : "",
+        "TISTORY_SECRET_KEY" : "",
+        "TISTORY_URL" : "",
+        "TISTORY_GET_URL" : "https://www.tistory.com/oauth/access_token?",
+        "TISTORY_INFO_URL" : "https://www.tistory.com/apis/blog/info?",
+        "TISTORY_CODE" : "",
+        "TISTORY_ACCESS_TOKEN" : ""
+    },
+    
+    "CONF" : {
+        "GPT3_MODLE" : "gpt-3.5-turbo",
+        "GPT4_MODLE" : "gpt-4",
+        "BLOG_POST_PATH" : "./blogPost/",
+        "MEMORY_PATH" : "./memory/",
+        "CATEGORY_PATH" : "category/",
+        "CONTENTS_PATH" : "contents/"
+    }
+}

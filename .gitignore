@@ -1,0 +1,4 @@
+memory/*
+blogPost/*
+config.json
+__pycache__
