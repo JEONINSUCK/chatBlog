@@ -1,4 +1,5 @@
-memory/*
+memory/category/*
+memory/contents/*
 blogPost/*
 config.json
 __pycache__

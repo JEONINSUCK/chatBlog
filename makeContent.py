@@ -289,15 +289,3 @@ if __name__ == '__main__':
     test_makeContent.makeCategory()
     title = test_makeContent.getCategoryTitle()
     test_makeContent.makeContent(title)
-    
-    # KO_query_token_num = test_tokenTool.getTokenNum(test_makeContent.getQueryKo())
-    # EN_query_token_num = test_tokenTool.getTokenNum(test_makeContent.getQueryEn())
-    # KO_ans_token_num = test_tokenTool.getTokenNum(test_makeContent.getAnswerKo())
-    # EN_ans_token_num = test_tokenTool.getTokenNum(test_makeContent.getAnswerEn())
-    # KO_token_price = test_tokenTool.calcTokenPrice(KO_query_token_num)
-    # EN_token_price = test_tokenTool.calcTokenPrice(EN_query_token_num)
-
-    # print(test_makeContent.getQueryEn())
-    # print()
-    # print("KO token num: {0}, price: {1}".format(KO_query_token_num, KO_token_price))
-    # print("EN token num: {0}, price: {1}".format(EN_query_token_num, EN_token_price))
