@@ -28,6 +28,11 @@ model = config['CONF']['GPT3_MODLE']
 
 def debugPrint(data):
     if DEBUG_ENABLE:
+        # get date & time
+        now = datetime.now()
+        today = now.date().strftime("%y-%m-%d")
+        today_time = now.time().strftime("%H:%M:%S")
+        print("{0} {1} - ".format(today, today_time), end="")
         print(data)
 
 

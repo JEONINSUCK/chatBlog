@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import requests
 import json
 import enum
@@ -17,6 +19,11 @@ with open("config.json", "r", encoding="utf-8-sig") as f:
 
 def debugPrint(data):
     if DEBUG_ENABLE:
+        # get date & time
+        now = datetime.now()
+        today = now.date().strftime("%y-%m-%d")
+        today_time = now.time().strftime("%H:%M:%S")
+        print("{0} {1} - ".format(today, today_time), end="")
         print(data)
 
 
