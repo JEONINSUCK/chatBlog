@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
     # print(test_postBlog.getAccessToken())
 
-    print(test_postBlog.getBlogInfo())
+    # print(test_postBlog.getBlogInfo())
     # print(test_postBlog.getBlogName())
-    print(test_postBlog.getCategoryID())
-    # print(test_postBlog.writeBlogPost("test contents", "test title", 1106820))
+    # print(test_postBlog.getCategoryID())
+    print(test_postBlog.writeBlogPost("test contents", "test title", 1106820))
