@@ -19,7 +19,7 @@ SYSTEM_QUERY_BASE = "에 관한 블로거야."
 SYSTEM_CONTENT_BASE = "You are a helpful assistant who is good at detailing."
 
 # load config.json data
-with open("config.json", "r", encoding="utf-8-sig") as f:
+with open("./config.json", "r", encoding="utf-8-sig") as f:
     config = json.load(f)
 
 # set API key & GPT model
@@ -83,7 +83,7 @@ class makeContent:
             answer = response['choices'][0]['message']['content']
             conv_answer = self.convModule.convKO(answer).text
 
-            token_num = self.tokenTool.getTokenNum(self.conv_query)
+            token_num = self.tokenTool.getTokenNum(conv_query)
             token_price = self.tokenTool.calcTokenPrice(token_num)
 
             debugPrint("token num: {0}, token price: {1}".format(token_num, token_price))
@@ -96,27 +96,22 @@ class makeContent:
 
     def makeCategory(self):
         try:
-            debugPrint("[+] Make category run...")
+            debugPrint("[+] Make title run...")
             write_string = ""
-            file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CATEGORY_PATH'], self.theme])
+            file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['TITLES_PATH'], self.theme])
             dir_path = os.path.dirname(file_path)
             # directory check
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
             # file check
             if os.path.exists(file_path):
-                debugPrint("[+] Category EXIST...")
+                debugPrint("[+] Titles EXIST...")
                 return errorCode.THEME_EXIST.value
             
 
             query = CATEGORY_QUERY_BASE.format(self.theme, self.theme)
 
-            print(query)
-
-            # system_role_string = theme + SYSTEM_QUERY_BASE
-            conv_query = self.convModule.convEN(query).text
-            
-            response = self.querySend(conv_query)
+            response = self.querySend(query)
             now = datetime.now()
             today = now.date().strftime("%Y-%m-%d")
             today_time = now.time().strftime("%H:%M:%S")
@@ -132,11 +127,11 @@ class makeContent:
             with open(file_path, 'w') as f:
                 f.write(write_string)
 
-            debugPrint("[+] Make category Ok...")
+            debugPrint("[+] Make title Ok...")
             return response
         
         except Exception as e:
-            debugPrint("[-] Make category FAIL...")
+            debugPrint("[-] Make title FAIL...")
             # print("makeCategory funcing exception: {0}".format(e))
 
 
@@ -181,7 +176,7 @@ class makeContent:
             first_find = True
 
             # file check
-            file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CATEGORY_PATH'], self.theme])
+            file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['TITLES_PATH'], self.theme])
             dir_path = os.path.dirname(file_path)
             if not os.path.exists(dir_path):
                 debugPrint("[-] Category title file not exist...")
@@ -294,3 +289,4 @@ if __name__ == '__main__':
     test_makeContent.makeCategory()
     title = test_makeContent.getCategoryTitle()
     test_makeContent.makeContent(title)
+    

@@ -65,7 +65,7 @@ class Bot:
         try:
             debugPrint("[+] Send approval message...")
             # load approval message form
-            with open("approval_msg.json", "rt") as msg_f:
+            with open("src/message_form/approval_msg.json", "rt") as msg_f:
                 approval_msg = json.load(msg_f)
 
                 # get date & time
@@ -90,7 +90,7 @@ class Bot:
             debugPrint("[+] Send post message...")
             result_post_msg = ""
             # load approval message form
-            with open("post_msg.json", "rt") as msg_f:
+            with open("src/message_form/post_msg.json", "rt") as msg_f:
                 post_msg = json.load(msg_f)
 
                 # fill each data to msessage form
@@ -112,7 +112,7 @@ class Bot:
         try:
             debugPrint("[+] Send input message...")
             # load approval message form
-            with open("input_msg.json", "rt") as msg_f:
+            with open("src/message_form/input_msg.json", "rt") as msg_f:
                 input_msg = json.load(msg_f)
 
                 # fill each data to msessage form
@@ -131,6 +131,6 @@ class Bot:
 if __name__ == '__main__':
     test_Bot = Bot()
     # test_Bot.sendMsg(theme="헬스", title="운동에 필요한 요소들")
-    # test_Bot.sendApproveMsg("운동", "운동에 중요한 요소 5가지")
+    test_Bot.sendApproveMsg("운동", "운동에 중요한 요소 5가지")
     # test_Bot.sendPostMsg("운동", "운동에 중요한 요소 5가지", 40, 0.14)
-    test_Bot.sendInputMsg(['운동', '헬스', '요리'])
+    # test_Bot.sendInputMsg(['운동', '헬스', '요리'])
