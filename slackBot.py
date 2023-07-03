@@ -19,7 +19,7 @@ def debugPrint(data):
         now = datetime.now()
         today = now.date().strftime("%y-%m-%d")
         today_time = now.time().strftime("%H:%M:%S")
-        print("{0} {1} - ".format(today, today_time), end="")
+        print("{0} {1} > ".format(today, today_time), end="")
         print(data)
 
 
@@ -63,6 +63,7 @@ class Bot:
 
     def sendApproveMsg(self, theme, title):
         try:
+            debugPrint("[+] Send approval message...")
             # load approval message form
             with open("approval_msg.json", "rt") as msg_f:
                 approval_msg = json.load(msg_f)
@@ -80,12 +81,13 @@ class Bot:
 
                 self.sendMsg(approval_msg)
         except Exception as e:
-            debugPrint("[-] Send message FAIL...")
+            # debugPrint("[-] Send message FAIL...")
             print("sendApproveMsg funcing exception: {0}".format(e))
 
 
     def sendPostMsg(self,theme, title, token, price):
         try:
+            debugPrint("[+] Send post message...")
             result_post_msg = ""
             # load approval message form
             with open("post_msg.json", "rt") as msg_f:
@@ -102,24 +104,29 @@ class Bot:
 
                 self.sendMsg(post_msg)
         except Exception as e:
-            debugPrint("[-] Send message FAIL...")
+            # debugPrint("[-] Send message FAIL...")
             print("sendPostMsg funcing exception: {0}".format(e))
 
+
     def sendInputMsg(self, theme_list):
-        # load approval message form
-        with open("input_msg.json", "rt") as msg_f:
-            input_msg = json.load(msg_f)
+        try:
+            debugPrint("[+] Send input message...")
+            # load approval message form
+            with open("input_msg.json", "rt") as msg_f:
+                input_msg = json.load(msg_f)
 
-            # fill each data to msessage form
-            field_data = input_msg[2]['fields']
-            for theme in theme_list:
-                field_form = {"type": "mrkdwn", "text": "• "+theme}
-                field_data.append(field_form)
-                           
-            input_msg[2]['fields'] = field_data
+                # fill each data to msessage form
+                field_data = input_msg[2]['fields']
+                for theme in theme_list:
+                    field_form = {"type": "mrkdwn", "text": "• "+theme}
+                    field_data.append(field_form)
+                            
+                input_msg[2]['fields'] = field_data
 
-            self.sendMsg(input_msg)
-
+                self.sendMsg(input_msg)
+        except Exception as e:
+            # debugPrint("[-] Send message FAIL...")
+            print("sendInputMsg funcing exception: {0}".format(e))
 
 if __name__ == '__main__':
     test_Bot = Bot()
