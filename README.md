@@ -3,10 +3,7 @@
 
 
 
-![Static Badge](https://img.shields.io/badge/python-3.10.6-3776AB)
-![Static Badge](https://img.shields.io/badge/googletrans-3.1.0-red)
-![Static Badge](https://img.shields.io/badge/tiktoken-0.4.0-yellow)
-![Static Badge](https://img.shields.io/badge/requests-2.31.0-green)
+![Static Badge](https://img.shields.io/badge/python-3.10.6-3776AB)![Static Badge](https://img.shields.io/badge/googletrans-3.1.0-red)![Static Badge](https://img.shields.io/badge/tiktoken-0.4.0-yellow)![Static Badge](https://img.shields.io/badge/requests-2.31.0-green)
 
 <img src="https://img.shields.io/badge/Github-181717?style=for-the-badge&logo=github&logoColor=white">
 <img src="https://img.shields.io/badge/OpenAI api-412991?style=for-the-badge&logo=openai&logoColor=white">
