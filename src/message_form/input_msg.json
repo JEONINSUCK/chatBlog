@@ -1,39 +1,41 @@
-[
-    {
-        "type": "section",
-        "text": {
-            "type": "mrkdwn",
-            "text": "⏰ *Notification*"
-        }
-    },
-    {
-        "type": "section",
-        "text": {
-            "type": "mrkdwn",
-            "text": "블로그에 게시할 카테고리가 없습니다. 카테고리를 생성할 테마를 선정해주세요."
-        }
-    },
-    {
-        "type": "section",
-        "text": {
-            "type": "mrkdwn",
-            "text": "*Category List*"
-        },
-        "fields": []
-    },
-    {
-        "type": "divider"
-    },
-    {
-        "type": "input",
-        "element": {
-            "type": "plain_text_input",
-            "action_id": "plain_text_input-action"
-        },
-        "label": {
-            "type": "plain_text",
-            "text": "Theme name",
-            "emoji": true
-        }
-    }
-]
+{
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "⏰ *Notification*"
+			}
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "블로그에 게시할 카테고리가 없습니다. 카테고리를 생성할 테마를 선정해주세요."
+			}
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*Category List*"
+			},
+			"fields": []
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "input",
+			"element": {
+				"type": "plain_text_input",
+				"action_id": "plain_text_input-action"
+			},
+			"label": {
+				"type": "plain_text",
+				"text": "Theme name",
+				"emoji": true
+			}
+		}
+	]
+}

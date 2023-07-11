@@ -7,7 +7,7 @@
 					"type": "section",
 					"text": {
 						"type": "mrkdwn",
-						"text": "You have a new request:\n*<fakeLink.toEmployeeProfile.com|ChatBlog - New blog contents post request>*"
+						"text": "You have a new request:\n*<fakeLink.toEmployeeProfile.com|Fred Enriquez - New device request>*"
 					}
 				},
 				{
@@ -15,31 +15,23 @@
 					"fields": [
 						{
 							"type": "mrkdwn",
-							"text": "*Theme:*\n[replace]"
+							"text": "*Type:*\nComputer (laptop)"
 						},
 						{
 							"type": "mrkdwn",
-							"text": "*Title:*\n[replace]"
+							"text": "*When:*\nSubmitted Aut 10"
 						},
 						{
 							"type": "mrkdwn",
-							"text": "*Date:*\n[replace]"
+							"text": "*Last Update:*\nMar 10, 2015 (3 years, 5 months)"
 						},
 						{
 							"type": "mrkdwn",
-							"text": "*Time:*\n[replace]"
-						}
-					]
-				},
-				{
-					"type": "divider"
-				},
-				{
-					"type": "section",
-					"fields": [
+							"text": "*Reason:*\nAll vowel keys aren't working."
+						},
 						{
 							"type": "mrkdwn",
-							"text": "\n*Request:*\n위 주제로 글을 작성할까요??"
+							"text": "*Specs:*\n\"Cheetah Pro 15\" - Fast, really fast\""
 						}
 					]
 				},
