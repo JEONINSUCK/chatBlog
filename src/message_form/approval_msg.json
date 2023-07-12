@@ -54,7 +54,7 @@
 								"text": "Approve"
 							},
 							"style": "primary",
-							"value": "click_me_123"
+							"value": "post_approve"
 						},
 						{
 							"type": "button",
@@ -64,7 +64,7 @@
 								"text": "Deny"
 							},
 							"style": "danger",
-							"value": "click_me_123"
+							"value": "post_deny"
 						}
 					]
 				}
