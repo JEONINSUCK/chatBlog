@@ -19,6 +19,8 @@ class errorCode(enum.Enum):
     SUCCESS = enum.auto()
     BODY_CHK_OK = enum.auto()
     BODY_CHK_FAIL = enum.auto()
+    BODY_ACT_BUTTON = enum.auto()
+    BODY_ACT_INPUT = enum.auto()
 
 # log module init
 logger = logging.getLogger(APP_NAME)
@@ -30,20 +32,34 @@ logger.addHandler(file_logging)
 
 def bodyCheck(body_request):
     try:
-        # load the body data form
-        with open("src/message_form/webhook_req_body_form.json", 'r', encoding="utf-8-sig") as bd_f:
-            form_data = json.load(bd_f)
 
-            # get key lists
-            form_keys = form_data.keys()
-            body_keys = body_request.keys()
+        if body_request['actions'][0]['type'] == 'plain_text_input':
+            # load the body data form
+            with open("src/message_form/webhook_input_body_form.json", 'r', encoding="utf-8-sig") as bd_f:
+                form_data = json.load(bd_f)
+                # get key lists
+                form_keys = form_data.keys()
+                body_keys = body_request.keys()
 
-            if form_keys == body_keys:
-                return errorCode.BODY_CHK_OK.value
-            else:
-                return errorCode.BODY_CHK_FAIL.value
-            
-            return 0
+                if form_keys == body_keys:
+                    return errorCode.BODY_ACT_INPUT.value
+                else:
+                    return errorCode.BODY_CHK_FAIL.value
+        elif body_request['actions'][0]['type'] == 'button':
+            # load the body data form
+            with open("src/message_form/webhook_button_body_form.json", 'r', encoding="utf-8-sig") as bd_f:
+                form_data = json.load(bd_f)
+                # get key lists
+                form_keys = form_data.keys()
+                body_keys = body_request.keys()
+
+                if form_keys == body_keys:
+                    return errorCode.BODY_ACT_BUTTON.value
+                else:
+                    return errorCode.BODY_CHK_FAIL.value
+        else:
+            return errorCode.BODY_CHK_FAIL.value
+
     except Exception as err:
         print(f"bodyCheck error: {err}")
 
@@ -103,9 +119,11 @@ async def webhook(request: Request):
         parm = getParm(request)
         body = await getBody(request)
 
-        if bodyCheck(body) == errorCode.BODY_CHK_OK.value:
-            # await print_request(request)
-            try:
+        try:
+            bchk = bodyCheck(body)
+            if  bchk == errorCode.BODY_ACT_BUTTON.value:
+                # await print_request(request)
+                
                 act_val = getActVal(body)
                 if act_val == config['CONF']['APPROVE_ACT_VAL']:
                     print("approve button")
@@ -121,8 +139,10 @@ async def webhook(request: Request):
                     print("action value not found")
 
                 return {"status": "OK"}
-            except Exception as e:
-                return {"status": "body structure error"}
+            elif bchk == errorCode.BODY_ACT_INPUT.value:
+                print(getActVal(body))
+        except Exception as e:
+            return {"status": "body structure error"}
         
 
     except Exception as err:

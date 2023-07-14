@@ -20,12 +20,18 @@
 				"type": "mrkdwn",
 				"text": "*Category List*"
 			},
-			"fields": []
+			"fields": [
+				{
+					"type": "mrkdwn",
+					"text": ":wrong:"
+				}
+			]
 		},
 		{
 			"type": "divider"
 		},
 		{
+			"dispatch_action": true,
 			"type": "input",
 			"element": {
 				"type": "plain_text_input",
