@@ -111,20 +111,21 @@ class Bot:
             print("sendPostMsg funcing exception: {0}".format(e))
 
 
-    def sendInputMsg(self, theme_list):
+    def sendInputMsg(self, theme_list=None):
         try:
             debugPrint("[+] Send input message...")
             # load approval message form
             with open("src/message_form/input_msg.json", "rt") as msg_f:
                 input_msg = json.load(msg_f)
 
-                # fill each data to msessage form
-                field_data = input_msg['blocks'][2]['fields']
-                for theme in theme_list:
-                    field_form = {"type": "mrkdwn", "text": "• "+theme}
-                    field_data.append(field_form)
-                            
-                input_msg['blocks'][2]['fields'] = field_data
+                if theme_list != None:
+                    # fill each data to msessage form
+                    field_data = input_msg['blocks'][2]['fields']
+                    for theme in theme_list:
+                        field_form = {"type": "mrkdwn", "text": "• "+theme}
+                        field_data.append(field_form)
+                                
+                    input_msg['blocks'][2]['fields'] = field_data
 
                 self.sendMsg(input_msg)
         except Exception as e:
