@@ -1,15 +1,29 @@
 from fastapi import FastAPI, Header, Request, Response
 from pydantic import BaseModel
 from urllib import parse
+from datetime import datetime
+try:
+    from makeContent import makeContent
+    from postBlog import postBlog
+    from slackBot import Bot
+except ModuleNotFoundError as e:
+    from src.makeContent import makeContent
+    from src.postBlog import postBlog
+    from src.slackBot import Bot
 
-import datetime
 import logging
 import json
 import enum
+import signal
+import os
 
+DEBUG_ENABLE = True
 
 APP_NAME = "webhook-listener"
 WEBHOOK_SECRET = "slackers"
+
+blog_title = ""
+theme_name = ""
 
 # load config.json data
 with open("./config.json", "r", encoding="utf-8-sig") as f:
@@ -21,69 +35,129 @@ class errorCode(enum.Enum):
     BODY_CHK_FAIL = enum.auto()
     BODY_ACT_BUTTON = enum.auto()
     BODY_ACT_INPUT = enum.auto()
+    THEME_EXIST = enum.auto()
+    THEME_DIR_NOT_EXIST = enum.auto()
+    THEME_FILE_NOT_EXIST = enum.auto()
+    THEME_FILE_EXIST = enum.auto()
+    TITLE_EXIST = enum.auto()
 
-# log module init
-logger = logging.getLogger(APP_NAME)
-logger.setLevel(logging.INFO)
-formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s: %(message)s")
-file_logging = logging.FileHandler(f"{APP_NAME}.log")
-file_logging.setFormatter(formatter)
-logger.addHandler(file_logging)
+def debugPrint(data):
+    if DEBUG_ENABLE:
+        # get date & time
+        now = datetime.now()
+        today = now.date().strftime("%y-%m-%d")
+        today_time = now.time().strftime("%H:%M:%S")
+        print("{0} {1} - ".format(today, today_time), end="")
+        print(data)
 
-def bodyCheck(body_request):
-    try:
 
-        if body_request['actions'][0]['type'] == 'plain_text_input':
-            # load the body data form
-            with open("src/message_form/webhook_input_body_form.json", 'r', encoding="utf-8-sig") as bd_f:
-                form_data = json.load(bd_f)
-                # get key lists
-                form_keys = form_data.keys()
-                body_keys = body_request.keys()
+class webTool:
+    def __init__(self) -> None:
+        self.input_wait = True
+        self.theme_name = ""
 
-                if form_keys == body_keys:
-                    return errorCode.BODY_ACT_INPUT.value
-                else:
-                    return errorCode.BODY_CHK_FAIL.value
-        elif body_request['actions'][0]['type'] == 'button':
-            # load the body data form
-            with open("src/message_form/webhook_button_body_form.json", 'r', encoding="utf-8-sig") as bd_f:
-                form_data = json.load(bd_f)
-                # get key lists
-                form_keys = form_data.keys()
-                body_keys = body_request.keys()
+    def bodyCheck(self, body_request):
+        try:
+            if body_request['actions'][0]['type'] == 'plain_text_input':
+                # load the body data form
+                with open("src/message_form/webhook_input_body_form.json", 'r', encoding="utf-8-sig") as bd_f:
+                    form_data = json.load(bd_f)
+                    # get key lists
+                    form_keys = form_data.keys()
+                    body_keys = body_request.keys()
 
-                if form_keys == body_keys:
-                    return errorCode.BODY_ACT_BUTTON.value
-                else:
-                    return errorCode.BODY_CHK_FAIL.value
+                    if form_keys == body_keys:
+                        return errorCode.BODY_ACT_INPUT.value
+                    else:
+                        return errorCode.BODY_CHK_FAIL.value
+            elif body_request['actions'][0]['type'] == 'button':
+                # load the body data form
+                with open("src/message_form/webhook_button_body_form.json", 'r', encoding="utf-8-sig") as bd_f:
+                    form_data = json.load(bd_f)
+                    # get key lists
+                    form_keys = form_data.keys()
+                    body_keys = body_request.keys()
+
+                    if form_keys == body_keys:
+                        return errorCode.BODY_ACT_BUTTON.value
+                    else:
+                        return errorCode.BODY_CHK_FAIL.value
+            else:
+                return errorCode.BODY_CHK_FAIL.value
+            
+        except Exception as err:
+            print(f"bodyCheck error: {err}")
+
+    def getMsgTheme(self, body: dict):
+        return body['message']['attachments'][0]['blocks'][1]['fields'][0]['text'].replace('*Theme:*',"")
+
+    def getMsgTitle(self, body: dict):
+        return body['message']['attachments'][0]['blocks'][1]['fields'][1]['text'].replace('*Title:*',"")
+
+    def getMsgDate(self, body: dict):
+        return body['message']['attachments'][0]['blocks'][1]['fields'][2]['text'].replace('*Date:*',"")
+
+    def getMsgTime(self, body: dict):
+        return body['message']['attachments'][0]['blocks'][1]['fields'][3]['text'].replace('*Time:*',"")
+
+    def getActVal(self, body: dict):
+        return body['actions'][0]['value']
+
+    def getHeader(self, request: Request):
+        return dict(request.headers.items())
+
+    def getParm(self, request: Request):
+        return dict(request.query_params.items())
+
+    def getThemeName(self):
+        global theme_name
+        return theme_name
+
+    def setThemeName(self, name):
+         global theme_name
+         theme_name = name
+
+
+class chatBlog:
+    def __init__(self, webtool) -> None:
+        web_tool = webtool
+
+    # check the theme file and dir
+    def theme_exist_chk(self):
+        dir_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['TITLES_PATH']])
+        # directory check
+        if not os.path.exists(dir_path):
+            return errorCode.THEME_DIR_NOT_EXIST.value
+        # file check
+        elif len(os.listdir(dir_path)) == 0:
+            return errorCode.THEME_FILE_NOT_EXIST.value
         else:
-            return errorCode.BODY_CHK_FAIL.value
-
-    except Exception as err:
-        print(f"bodyCheck error: {err}")
-
-def getMsgTheme(body: dict):
-    return body['message']['attachments'][0]['blocks'][1]['fields'][0]['text'].replace('*Theme:*',"")
-
-def getMsgTitle(body: dict):
-    return body['message']['attachments'][0]['blocks'][1]['fields'][1]['text'].replace('*Title:*',"")
-
-def getMsgDate(body: dict):
-    return body['message']['attachments'][0]['blocks'][1]['fields'][2]['text'].replace('*Date:*',"")
-
-def getMsgTime(body: dict):
-    return body['message']['attachments'][0]['blocks'][1]['fields'][3]['text'].replace('*Time:*',"")
-
-def getActVal(body: dict):
-    return body['actions'][0]['value']
-
-def getHeader(request: Request):
-    return dict(request.headers.items())
+            return errorCode.THEME_FILE_EXIST.value
 
 
-def getParm(request: Request):
-    return dict(request.query_params.items())
+    
+    def run(self):
+        gpt_bot = makeContent()
+        blog_bot = postBlog()
+        slack_bot = Bot()
+
+        def sig_usr1_handler(sig_num, curr_stack_frame):
+            print(web_tool.getThemeName)
+
+        if self.theme_exist_chk() == errorCode.THEME_FILE_EXIST.value:       # exist the theme file before creating
+            if gpt_bot.getCategoryTitle() == None:          # do not have usable title
+                pass
+            else:
+                pass
+        
+        else:           # do not have theme file
+            # TODO: sendInputMsg()로 슬랙에 입력 메시지를 보내고 시그널 응답 대기
+            slack_bot.sendInputMsg()
+            signal.signal(signal.SIGUSR1, sig_usr1_handler)
+            signal.pause()
+
+
+
 
 
 async def getBody(request: Request):
@@ -104,7 +178,6 @@ async def print_request(request):
     except Exception as err:
         print(f'request body         : {await getBody(request)}')
 
-
 app = FastAPI()
 
 @app.get("/")
@@ -115,22 +188,23 @@ async def get_test():
 @app.post("/webhook", status_code=200)
 async def webhook(request: Request):
     try:
-        header = getHeader(request)
-        parm = getParm(request)
+        web_t = webTool()
+        header = web_t.getHeader(request)
+        parm = web_t.getParm(request)
         body = await getBody(request)
 
         try:
-            bchk = bodyCheck(body)
+            bchk = web_t.bodyCheck(body)
             if  bchk == errorCode.BODY_ACT_BUTTON.value:
                 # await print_request(request)
                 
-                act_val = getActVal(body)
+                act_val = web_t.getActVal(body)
                 if act_val == config['CONF']['APPROVE_ACT_VAL']:
                     print("approve button")
-                    print(getMsgTheme(body))
-                    print(getMsgTitle(body))
-                    print(getMsgDate(body))
-                    print(getMsgTime(body))
+                    print(web_t.getMsgTheme(body))
+                    print(web_t.getMsgTitle(body))
+                    print(web_t.getMsgDate(body))
+                    print(web_t.getMsgTime(body))
                 elif act_val == config['CONF']['DENY_ACT_VAL']:
                     print("deny button")
                 elif act_val == config['CONF']['INPUT']:
@@ -140,7 +214,13 @@ async def webhook(request: Request):
 
                 return {"status": "OK"}
             elif bchk == errorCode.BODY_ACT_INPUT.value:
-                print(getActVal(body))
+                # TODO: 슬랙에서 온 응답 값 출력 및 시그널 신호 전송
+                # TODO: uvicon 명령어로 이 함수를 실행시켜 놓고 python command로 main 함수를 실행시켜서 다른 프로세스라 서로 값을 못 주고 받나??
+                # TODO: 이 함수도 python thread로 돌리고, main 함수도 thread로 돌리면 신호가 갈까???
+                print(web_t.getActVal(body))
+                web_tool.setThemeName(web_tool.getActVal(body))
+                signal.raise_signal(signal.SIGUSR1)
+
         except Exception as e:
             return {"status": "body structure error"}
         
@@ -148,3 +228,20 @@ async def webhook(request: Request):
     except Exception as err:
         logging.error(f'could not print REQUEST: {err}')
         return {"status": "ERR"}
+
+
+if __name__ == '__main__':
+    web_tool = webTool()
+    chat_blog = chatBlog(web_tool)
+    
+    # log module init
+    logger = logging.getLogger(APP_NAME)
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s: %(message)s")
+    file_logging = logging.FileHandler(f"{APP_NAME}.log")
+    file_logging.setFormatter(formatter)
+    logger.addHandler(file_logging)
+
+    
+    
+    chat_blog.run()
