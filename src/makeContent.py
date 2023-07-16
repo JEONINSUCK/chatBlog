@@ -1,14 +1,12 @@
 from googletrans import Translator
 from datetime import datetime
+from common import *
 
-import enum
 import openai
 import tiktoken
 import json
 import os
 import re
-
-DEBUG_ENABLE = True
 
 EXCHANGE_RATE = 1200
 DEFUALT_TOKEN = 1000
@@ -25,22 +23,6 @@ with open("./config.json", "r", encoding="utf-8-sig") as f:
 # set API key & GPT model
 open_ai_key = config['AUTH']['GPT3_API_KEY']
 model = config['CONF']['GPT3_MODLE']
-
-def debugPrint(data):
-    if DEBUG_ENABLE:
-        # get date & time
-        now = datetime.now()
-        today = now.date().strftime("%y-%m-%d")
-        today_time = now.time().strftime("%H:%M:%S")
-        print("{0} {1} - ".format(today, today_time), end="")
-        print(data)
-
-
-class errorCode(enum.Enum):
-    SUCCESS = enum.auto()
-    THEME_EXIST = enum.auto()
-    THEME_NOT_EXIST = enum.auto()
-    TITLE_EXIST = enum.auto()
 
 
 class makeContent:
@@ -128,7 +110,7 @@ class makeContent:
                 f.write(write_string)
 
             debugPrint("[+] Make title Ok...")
-            return response
+            return errorCode.SUCCESS.value
         
         except Exception as e:
             debugPrint("[-] Make title FAIL...")
@@ -170,14 +152,15 @@ class makeContent:
             debugPrint("[-] Make content FAIL...")
 
 
-    def getCategoryTitle(self):
+    def getCategoryTitle(self, theme):
         try:
             write_string = ""
             first_find = True
 
             # file check
-            file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['TITLES_PATH'], self.theme])
+            file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['TITLES_PATH'], theme])
             dir_path = os.path.dirname(file_path)
+            print(file_path)
             if not os.path.exists(dir_path):
                 debugPrint("[-] Category title file not exist...")
                 return errorCode.THEME_NOT_EXIST.value
@@ -194,7 +177,9 @@ class makeContent:
                             first_find = False
                         else:
                             write_string += line
-                
+
+                    if first_find == True:
+                        return errorCode.THEME_EXIST.value
                 # using category title update to file
                 with open(file_path, 'w') as f:
                     f.write(write_string)
@@ -204,7 +189,7 @@ class makeContent:
             
         except Exception as e:
             debugPrint("[-] Get category title FAIL")
-            # print("getCategoryTitle funcing exception: {0}".format(e))                
+            print("getCategoryTitle funcing exception: {0}".format(e))                
 
     
     def setTheme(self, theme):

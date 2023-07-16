@@ -1,32 +1,15 @@
 from datetime import datetime
+from common import *
 
-import os
 import json
-import enum
 import requests
-import re
 
-DEBUG_ENABLE = True
 
 
 # load config.json data
 with open("config.json", "r", encoding="utf-8-sig") as f:
     config = json.load(f)
 
-def debugPrint(data):
-    if DEBUG_ENABLE:
-        # get date & time
-        now = datetime.now()
-        today = now.date().strftime("%y-%m-%d")
-        today_time = now.time().strftime("%H:%M:%S")
-        print("{0} {1} > ".format(today, today_time), end="")
-        print(data)
-
-
-class errorCode(enum.Enum):
-    SUCCESS = enum.auto()
-    SEND_MSG_FAIL = enum.auto()
-    SEND_MSG_ERR = enum.auto()
 
 class Bot:
     def __init__(self) -> None:
