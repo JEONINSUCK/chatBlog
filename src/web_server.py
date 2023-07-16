@@ -2,59 +2,41 @@ from fastapi import FastAPI, Header, Request, Response
 from pydantic import BaseModel
 from urllib import parse
 from datetime import datetime
+from queue import Queue
 try:
     from makeContent import makeContent
     from postBlog import postBlog
     from slackBot import Bot
+    from common import *
 except ModuleNotFoundError as e:
     from src.makeContent import makeContent
     from src.postBlog import postBlog
     from src.slackBot import Bot
+    from src.common import *
 
 import logging
 import json
-import enum
-import signal
 import os
+import threading
+import uvicorn
 
 DEBUG_ENABLE = True
 
 APP_NAME = "webhook-listener"
 WEBHOOK_SECRET = "slackers"
 
-blog_title = ""
-theme_name = ""
+evt = threading.Event()
+input_que = Queue()
+title_que = Queue()
+app = FastAPI()
 
 # load config.json data
 with open("./config.json", "r", encoding="utf-8-sig") as f:
     config = json.load(f)
 
-class errorCode(enum.Enum):
-    SUCCESS = enum.auto()
-    BODY_CHK_OK = enum.auto()
-    BODY_CHK_FAIL = enum.auto()
-    BODY_ACT_BUTTON = enum.auto()
-    BODY_ACT_INPUT = enum.auto()
-    THEME_EXIST = enum.auto()
-    THEME_DIR_NOT_EXIST = enum.auto()
-    THEME_FILE_NOT_EXIST = enum.auto()
-    THEME_FILE_EXIST = enum.auto()
-    TITLE_EXIST = enum.auto()
-
-def debugPrint(data):
-    if DEBUG_ENABLE:
-        # get date & time
-        now = datetime.now()
-        today = now.date().strftime("%y-%m-%d")
-        today_time = now.time().strftime("%H:%M:%S")
-        print("{0} {1} - ".format(today, today_time), end="")
-        print(data)
-
-
 class webTool:
     def __init__(self) -> None:
-        self.input_wait = True
-        self.theme_name = ""
+        pass
 
     def bodyCheck(self, body_request):
         try:
@@ -109,14 +91,6 @@ class webTool:
     def getParm(self, request: Request):
         return dict(request.query_params.items())
 
-    def getThemeName(self):
-        global theme_name
-        return theme_name
-
-    def setThemeName(self, name):
-         global theme_name
-         theme_name = name
-
 
 class chatBlog:
     def __init__(self, webtool) -> None:
@@ -133,30 +107,31 @@ class chatBlog:
             return errorCode.THEME_FILE_NOT_EXIST.value
         else:
             return errorCode.THEME_FILE_EXIST.value
-
-
     
     def run(self):
         gpt_bot = makeContent()
         blog_bot = postBlog()
         slack_bot = Bot()
 
-        def sig_usr1_handler(sig_num, curr_stack_frame):
-            print(web_tool.getThemeName)
-
         if self.theme_exist_chk() == errorCode.THEME_FILE_EXIST.value:       # exist the theme file before creating
-            if gpt_bot.getCategoryTitle() == None:          # do not have usable title
+            if gpt_bot.getCategoryTitle("운동") == None:          # do not have usable title
                 pass
             else:
                 pass
         
-        else:           # do not have theme file
-            # TODO: sendInputMsg()로 슬랙에 입력 메시지를 보내고 시그널 응답 대기
+        else:
             slack_bot.sendInputMsg()
-            signal.signal(signal.SIGUSR1, sig_usr1_handler)
-            signal.pause()
 
-
+            evt.wait()
+            if input_que.empty() == False:
+                theme_name = input_que.get()
+                print(theme_name)
+            else:
+                print("[-] Input Queue is empty...")
+            
+            gpt_bot.setTheme(theme_name)
+            if gpt_bot.makeCategory() == errorCode.SUCCESS.value:
+                print(f"[+] Make 5 titles about {theme_name} complete!!")
 
 
 
@@ -178,8 +153,7 @@ async def print_request(request):
     except Exception as err:
         print(f'request body         : {await getBody(request)}')
 
-app = FastAPI()
-
+        
 @app.get("/")
 async def get_test():
     return {"message" : "Hello world"}
@@ -189,6 +163,7 @@ async def get_test():
 async def webhook(request: Request):
     try:
         web_t = webTool()
+        test_obj = chatBlog(web_t)
         header = web_t.getHeader(request)
         parm = web_t.getParm(request)
         body = await getBody(request)
@@ -200,15 +175,13 @@ async def webhook(request: Request):
                 
                 act_val = web_t.getActVal(body)
                 if act_val == config['CONF']['APPROVE_ACT_VAL']:
-                    print("approve button")
+                    print("[+] Approve button enter...")
                     print(web_t.getMsgTheme(body))
                     print(web_t.getMsgTitle(body))
                     print(web_t.getMsgDate(body))
                     print(web_t.getMsgTime(body))
                 elif act_val == config['CONF']['DENY_ACT_VAL']:
-                    print("deny button")
-                elif act_val == config['CONF']['INPUT']:
-                    print("input button")
+                    print("[+] Deny button enter...")
                 else:
                     print("action value not found")
 
@@ -217,9 +190,10 @@ async def webhook(request: Request):
                 # TODO: 슬랙에서 온 응답 값 출력 및 시그널 신호 전송
                 # TODO: uvicon 명령어로 이 함수를 실행시켜 놓고 python command로 main 함수를 실행시켜서 다른 프로세스라 서로 값을 못 주고 받나??
                 # TODO: 이 함수도 python thread로 돌리고, main 함수도 thread로 돌리면 신호가 갈까???
-                print(web_t.getActVal(body))
-                web_tool.setThemeName(web_tool.getActVal(body))
-                signal.raise_signal(signal.SIGUSR1)
+                print("[+] Input data enter...")
+                input_que.put(web_t.getActVal(body))
+                evt.set()
+                
 
         except Exception as e:
             return {"status": "body structure error"}
@@ -229,6 +203,9 @@ async def webhook(request: Request):
         logging.error(f'could not print REQUEST: {err}')
         return {"status": "ERR"}
 
+def web_th():
+    uvicorn.run(app, port=8000)
+    
 
 if __name__ == '__main__':
     web_tool = webTool()
@@ -241,7 +218,19 @@ if __name__ == '__main__':
     file_logging = logging.FileHandler(f"{APP_NAME}.log")
     file_logging.setFormatter(formatter)
     logger.addHandler(file_logging)
+    
+    th_web = threading.Thread(target=web_th)
+    th_chat_blog = threading.Thread(target=chat_blog.run)
+    # th_chat_blog = threading.Thread(target=test_th1, args=(chat_blog,))
+    # th_chablog = threading.Thread(target=chat_blog.run)
+    th_chat_blog.start()
+    th_web.start()
+    
 
     
     
-    chat_blog.run()
+    
+    # chat_blog.run()
+    
+    
+    

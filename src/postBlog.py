@@ -1,4 +1,5 @@
 from datetime import datetime
+from common import *
 
 import requests
 import json
@@ -16,21 +17,6 @@ with open("config.json", "r", encoding="utf-8-sig") as f:
 # tistory_secret_key = config['AUTH']['TISTORY_SECRET_KEY']
 # tistory_url = config['AUTH']['TISTORY_URL']
 # tistory_get_url = config['AUTH']['TISTORY_GET_URL']
-
-def debugPrint(data):
-    if DEBUG_ENABLE:
-        # get date & time
-        now = datetime.now()
-        today = now.date().strftime("%y-%m-%d")
-        today_time = now.time().strftime("%H:%M:%S")
-        print("{0} {1} - ".format(today, today_time), end="")
-        print(data)
-
-
-class errorCode(enum.Enum):
-    SUCCESS = enum.auto()
-    REQUEST_GET_ERR = enum.auto()
-    CATEGORY_ID_NOT_EXIST = enum.auto()
 
 
 class postBlog:
