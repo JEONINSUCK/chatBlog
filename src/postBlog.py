@@ -3,7 +3,7 @@ from common import *
 
 import requests
 import json
-import enum
+import os
 
 DEBUG_ENABLE = True
 
@@ -48,13 +48,14 @@ class postBlog:
         }
 
         # request post url
-        res = requests.post(self.tistory_post_url, params=params)
+        res = requests.post(self.tistory_post_url, data=params)
         if res.status_code == 200:
             debugPrint("[+] Write blog post OK...")
             return res.json()['tistory']['url']
         else:
             debugPrint("[-] Write blog post ERR...")
-            return errorCode.REQUEST_GET_ERR.value
+            print(res)
+            return ERRORCODE._REQUEST_GET_ERR
     
     # need to update 'TISTORY_CODE' value everytime
     def getAccessToken(self):
@@ -76,7 +77,7 @@ class postBlog:
                 return res.text.replace('access_token=','')
             else:
                 debugPrint("[-] Get request ERR...")
-                return errorCode.REQUEST_GET_ERR.value
+                return ERRORCODE._REQUEST_GET_ERR
         except Exception as e:
             debugPrint("[-] Get access token FAIL...")
             # print("getAccessToken funcing exception: {0}".format(e))
@@ -98,7 +99,7 @@ class postBlog:
                 return self.responsParse(res)
             else:
                 debugPrint("[-] Get request ERR...")
-                return errorCode.REQUEST_GET_ERR.value
+                return ERRORCODE._REQUEST_GET_ERR
         except Exception as e:
             debugPrint("[-] Get blog info FAIL...")
             # print("getBlogInfo funcing exception: {0}".format(e))
@@ -129,10 +130,10 @@ class postBlog:
                     return categorys_dict
                 else:
                     debugPrint("[+] Category ID is not exist...")
-                    return errorCode.CATEGORY_ID_NOT_EXIST.value
+                    return ERRORCODE._CATEGORY_ID_NOT_EXIST
             else:
                 debugPrint("[-] Get request ERR...")
-                return errorCode.REQUEST_GET_ERR.value
+                return ERRORCODE._REQUEST_GET_ERR
         except Exception as e:
             debugPrint("[-] Get category ID FAIL...")
             # print("getCategoryID funcing exception: {0}".format(e))
@@ -151,5 +152,19 @@ if __name__ == '__main__':
 
     # print(test_postBlog.getBlogInfo())
     # print(test_postBlog.getBlogName())
-    # print(test_postBlog.getCategoryID())
-    print(test_postBlog.writeBlogPost("test contents", "test title", 1106820))
+    print(test_postBlog.getCategoryID())
+    file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH']])
+    file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], os.listdir(file_path)[0]])
+    test_contents = ""
+    with open(file_path, 'r') as f:
+        # test_contents = f.read()
+        for line in f.readlines():
+            test_contents += line
+            test_contents += "\r\n"
+
+        id = int(test_postBlog.getCategoryID()['헬스'])
+        title = "체중 감량과 토닝을 위한 효과적인 운동"
+
+        print(test_postBlog.writeBlogPost(test_contents, title, id))
+    
+    

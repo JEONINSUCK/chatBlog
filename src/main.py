@@ -27,7 +27,7 @@ WEBHOOK_SECRET = "slackers"
 
 evt = threading.Event()
 input_que = Queue()
-title_que = Queue()
+button_que = Queue()
 app = FastAPI()
 
 # load config.json data
@@ -49,9 +49,9 @@ class webTool:
                     body_keys = body_request.keys()
 
                     if form_keys == body_keys:
-                        return errorCode.BODY_ACT_INPUT.value
+                        return ERRORCODE._BODY_ACT_INPUT
                     else:
-                        return errorCode.BODY_CHK_FAIL.value
+                        return ERRORCODE._BODY_CHK_FAIL
             elif body_request['actions'][0]['type'] == 'button':
                 # load the body data form
                 with open("src/message_form/webhook_button_body_form.json", 'r', encoding="utf-8-sig") as bd_f:
@@ -61,11 +61,11 @@ class webTool:
                     body_keys = body_request.keys()
 
                     if form_keys == body_keys:
-                        return errorCode.BODY_ACT_BUTTON.value
+                        return ERRORCODE._BODY_ACT_BUTTON
                     else:
-                        return errorCode.BODY_CHK_FAIL.value
+                        return ERRORCODE._BODY_CHK_FAIL
             else:
-                return errorCode.BODY_CHK_FAIL.value
+                return ERRORCODE._BODY_CHK_FAIL
             
         except Exception as err:
             print(f"bodyCheck error: {err}")
@@ -93,46 +93,113 @@ class webTool:
 
 
 class chatBlog:
-    def __init__(self, webtool) -> None:
-        web_tool = webtool
+    def __init__(self) -> None:
+        self.theme = ""
+        self.title = ""
+        self.gpt_bot = makeContent()
+        self.blog_bot = postBlog()
+        self.slack_bot = Bot()
 
     # check the theme file and dir
     def theme_exist_chk(self):
         dir_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['TITLES_PATH']])
         # directory check
         if not os.path.exists(dir_path):
-            return errorCode.THEME_DIR_NOT_EXIST.value
+            return ERRORCODE._THEME_DIR_NOT_EXIST
         # file check
         elif len(os.listdir(dir_path)) == 0:
-            return errorCode.THEME_FILE_NOT_EXIST.value
+            return ERRORCODE._THEME_FILE_NOT_EXIST
         else:
-            return errorCode.THEME_FILE_EXIST.value
-    
-    def run(self):
-        gpt_bot = makeContent()
-        blog_bot = postBlog()
-        slack_bot = Bot()
-
-        if self.theme_exist_chk() == errorCode.THEME_FILE_EXIST.value:       # exist the theme file before creating
-            if gpt_bot.getCategoryTitle("운동") == None:          # do not have usable title
-                pass
+            return ERRORCODE._THEME_FILE_EXIST
+    def get_usable_title(self):
+        for theme in self.gpt_bot.getThemeSrc():
+            get_title_src = self.gpt_bot.getTitleSrc(theme)
+            if get_title_src == ERRORCODE._TITLE_USED:          # do not have usable title
+                    continue
+            elif get_title_src == ERRORCODE._THEME_NOT_EXIST:
+                print("[-] Theme file not exist...")
             else:
-                pass
-        
-        else:
-            slack_bot.sendInputMsg()
-
-            evt.wait()
-            if input_que.empty() == False:
-                theme_name = input_que.get()
-                print(theme_name)
-            else:
-                print("[-] Input Queue is empty...")
+                self.set_theme(theme)
+                return get_title_src
             
-            gpt_bot.setTheme(theme_name)
-            if gpt_bot.makeCategory() == errorCode.SUCCESS.value:
-                print(f"[+] Make 5 titles about {theme_name} complete!!")
+        return ERRORCODE._TITLE_ALL_USED
 
+    def input_request_proc(self):
+        self.slack_bot.sendInputMsg()
+
+        evt.wait()
+        if input_que.empty() == False:
+            theme_name = input_que.get()
+            print(theme_name)
+        else:
+            print("[-] Input Queue is empty...")
+        
+        self.gpt_bot.setTheme(theme_name)
+        if self.gpt_bot.makeCategory() == ERRORCODE._SUCCESS:
+            print(f"[+] Make 5 titles about {theme_name} complete!!")
+
+    def button_request_proc(self):
+        self.slack_bot.sendApproveMsg(self.get_theme(), self.title)
+        
+        evt.wait()
+        if button_que.empty() == False:
+            bt_type = button_que.get()
+            if bt_type == config['CONF']['APPROVE_ACT_VAL']:
+                debugPrint("[+] User approve to post...")
+                return ERRORCODE._BT_APPROVE
+            elif bt_type == config['CONF']['DENY_ACT_VAL']:
+                debugPrint("[+] User deny to post...")
+                return ERRORCODE._BT_DENY
+            else:
+                return ERRORCODE._BT_INVALID
+        else:
+            print("[-] Button Queue is empty...")
+
+    def post_blog(self):
+        try:
+            file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], self.title])
+            with open(file_path, 'r') as con_f:
+                blog_contents = con_f.read()
+
+                cate_id = self.blog_bot.getCategoryID()
+                if type(cate_id) is dict:
+                    if self.theme in cate_id.keys():
+                        return self.blog_bot.writeBlogPost(blog_contents, 
+                                                            self.title,
+                                                            cate_id[self.theme])
+                    else:
+                       debugPrint("[-] Not exist category id...")
+                else:
+                    debugPrint("[-] Category id is not dict")
+        except Exception as e:
+            print("post_blog funcing exception: {0}".format(e)) 
+                    
+
+    def run(self):
+        if self.theme_exist_chk() == ERRORCODE._THEME_FILE_EXIST:       # exist the theme file before creating
+            self.title = self.get_usable_title()
+            if self.title == ERRORCODE._TITLE_ALL_USED:
+                self.input_request_proc()
+            else:
+                if self.button_request_proc() == ERRORCODE._BT_APPROVE:
+                    self.gpt_bot.titleStatusUpdate(self.theme)
+
+                    if self.gpt_bot.makeContent(self.title) == ERRORCODE._SUCCESS:
+                        print("make contents success")
+                        blog_url = self.post_blog()
+                else:
+                    # wait other request
+                    pass
+
+        else:
+            self.input_request_proc()
+            
+    def set_theme(self, theme):
+        self.theme = theme
+
+    def get_theme(self):
+        return self.theme
+    
 
 
 async def getBody(request: Request):
@@ -163,30 +230,36 @@ async def get_test():
 async def webhook(request: Request):
     try:
         web_t = webTool()
-        test_obj = chatBlog(web_t)
+        test_obj = chatBlog()
         header = web_t.getHeader(request)
         parm = web_t.getParm(request)
         body = await getBody(request)
 
         try:
             bchk = web_t.bodyCheck(body)
-            if  bchk == errorCode.BODY_ACT_BUTTON.value:
+            if  bchk == ERRORCODE._BODY_ACT_BUTTON:
                 # await print_request(request)
                 
                 act_val = web_t.getActVal(body)
                 if act_val == config['CONF']['APPROVE_ACT_VAL']:
                     print("[+] Approve button enter...")
-                    print(web_t.getMsgTheme(body))
-                    print(web_t.getMsgTitle(body))
-                    print(web_t.getMsgDate(body))
-                    print(web_t.getMsgTime(body))
+                    try:
+                        button_que.put(act_val)
+                    except Exception as e:
+                        print(e)
+                    evt.set()
                 elif act_val == config['CONF']['DENY_ACT_VAL']:
                     print("[+] Deny button enter...")
+                    try:
+                        button_que.put(act_val)
+                    except Exception as e:
+                        print(e)
+                    evt.set()
                 else:
                     print("action value not found")
 
                 return {"status": "OK"}
-            elif bchk == errorCode.BODY_ACT_INPUT.value:
+            elif bchk == ERRORCODE._BODY_ACT_INPUT:
                 # TODO: 슬랙에서 온 응답 값 출력 및 시그널 신호 전송
                 # TODO: uvicon 명령어로 이 함수를 실행시켜 놓고 python command로 main 함수를 실행시켜서 다른 프로세스라 서로 값을 못 주고 받나??
                 # TODO: 이 함수도 python thread로 돌리고, main 함수도 thread로 돌리면 신호가 갈까???
@@ -208,8 +281,7 @@ def web_th():
     
 
 if __name__ == '__main__':
-    web_tool = webTool()
-    chat_blog = chatBlog(web_tool)
+    chat_blog = chatBlog()
     
     # log module init
     logger = logging.getLogger(APP_NAME)
@@ -221,15 +293,10 @@ if __name__ == '__main__':
     
     th_web = threading.Thread(target=web_th)
     th_chat_blog = threading.Thread(target=chat_blog.run)
-    # th_chat_blog = threading.Thread(target=test_th1, args=(chat_blog,))
-    # th_chablog = threading.Thread(target=chat_blog.run)
-    th_chat_blog.start()
-    th_web.start()
-    
 
-    
-    
-    
+    th_web.start()
+    th_chat_blog.start()
+
     # chat_blog.run()
     
     

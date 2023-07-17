@@ -40,7 +40,7 @@ class Bot:
                 debugPrint("[+] Send message OK...")
             else:
                 debugPrint("[+] Response ERR: {0}...".format(response.status_code))
-                return errorCode.SEND_MSG_FAIL.value
+                return SEND_MSG_FAIL.value
 
         except Exception as e:
             debugPrint("[-] Send message FAIL...")
