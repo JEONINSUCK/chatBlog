@@ -1,5 +1,6 @@
 from datetime import datetime
 from common import *
+from postBlog import postBlog
 
 import json
 import requests
@@ -40,7 +41,7 @@ class Bot:
                 debugPrint("[+] Send message OK...")
             else:
                 debugPrint("[+] Response ERR: {0}...".format(response.status_code))
-                return SEND_MSG_FAIL.value
+                return ERRORCODE._SEND_MSG_FAIL
 
         except Exception as e:
             debugPrint("[-] Send message FAIL...")
@@ -71,9 +72,9 @@ class Bot:
             print("sendApproveMsg funcing exception: {0}".format(e))
 
 
-    def sendPostMsg(self,theme, title, token, price):
+    def sendPostMsg(self,theme, title, token, price, url):
         try:
-            debugPrint("[+] Send post message...")
+            debugPrint("[+] Send post message run...")
             result_post_msg = ""
             # load approval message form
             with open("src/message_form/post_msg.json", "rt") as msg_f:
@@ -87,10 +88,12 @@ class Bot:
                     result_post_msg += (parse_post_msg[i] + "\n")
 
                 post_msg['attachments'][0]['blocks'][3]['text']['text'] = result_post_msg
+                post_msg['attachments'][0]['blocks'][6]['elements'][0]['url'] = url
 
                 self.sendMsg(post_msg)
+            debugPrint("[+] Send post message OK...")
         except Exception as e:
-            # debugPrint("[-] Send message FAIL...")
+            debugPrint("[-] Send post message FAIL...")
             print("sendPostMsg funcing exception: {0}".format(e))
 
 
@@ -104,6 +107,8 @@ class Bot:
                 if theme_list != None:
                     # fill each data to msessage form
                     field_data = input_msg['blocks'][2]['fields']
+                    # clear the icon
+                    field_data.clear()
                     for theme in theme_list:
                         field_form = {"type": "mrkdwn", "text": "• "+theme}
                         field_data.append(field_form)
@@ -127,8 +132,10 @@ class Bot:
 
 if __name__ == '__main__':
     test_Bot = Bot()
+    url = config['AUTH']['TISTORY_URL']
     # test_Bot.sendMsg(theme="헬스", title="운동에 필요한 요소들")
-    test_Bot.sendApproveMsg("운동", "운동에 중요한 요소 5가지")
-    # test_Bot.sendPostMsg("운동", "운동에 중요한 요소 5가지", 40, 0.14)
-    # test_Bot.sendInputMsg(['운동', '헬스', '요리'])
+    # test_Bot.sendApproveMsg("운동", "운동에 중요한 요소 5가지")
+    # test_Bot.sendPostMsg("운동", "운동에 중요한 요소 5가지", 40, 0.14, url)
+    test_Bot.sendInputMsg(postBlog().getCategoryID().keys())
     # test_Bot.sendButtonMsg()
+    # print(postBlog().getCategoryID().keys())

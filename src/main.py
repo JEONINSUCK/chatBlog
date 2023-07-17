@@ -125,7 +125,8 @@ class chatBlog:
         return ERRORCODE._TITLE_ALL_USED
 
     def input_request_proc(self):
-        self.slack_bot.sendInputMsg()
+        theme_list = self.blog_bot.getCategoryID().keys()
+        self.slack_bot.sendInputMsg(theme_list)
 
         evt.wait()
         if input_que.empty() == False:
@@ -176,23 +177,28 @@ class chatBlog:
                     
 
     def run(self):
-        if self.theme_exist_chk() == ERRORCODE._THEME_FILE_EXIST:       # exist the theme file before creating
-            self.title = self.get_usable_title()
-            if self.title == ERRORCODE._TITLE_ALL_USED:
-                self.input_request_proc()
-            else:
-                if self.button_request_proc() == ERRORCODE._BT_APPROVE:
-                    self.gpt_bot.titleStatusUpdate(self.theme)
-
-                    if self.gpt_bot.makeContent(self.title) == ERRORCODE._SUCCESS:
-                        print("make contents success")
-                        blog_url = self.post_blog()
+        while(True):
+            evt.clear()
+            if self.theme_exist_chk() == ERRORCODE._THEME_FILE_EXIST:       # exist the theme file before creating
+                self.title = self.get_usable_title()
+                if self.title == ERRORCODE._TITLE_ALL_USED:
+                    self.input_request_proc()
                 else:
-                    # wait other request
-                    pass
-
-        else:
-            self.input_request_proc()
+                    if self.button_request_proc() == ERRORCODE._BT_APPROVE:
+                        self.gpt_bot.titleStatusUpdate(self.theme)
+                        res = self.gpt_bot.makeContent(self.title)
+                        if type(res) is dict:
+                            blog_url = self.post_blog()
+                            self.slack_bot.sendPostMsg(self.theme,
+                                                    self.title,
+                                                    res['token'],
+                                                    res['price'],
+                                                    blog_url)
+                    else:
+                        # wait other request
+                        pass
+            else:
+                self.input_request_proc()
             
     def set_theme(self, theme):
         self.theme = theme

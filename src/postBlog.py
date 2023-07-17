@@ -32,7 +32,7 @@ class postBlog:
         self.tistory_post_url = config['AUTH']['TISTORY_POST_URL']
         self.tistory_access_token = config['AUTH']['TISTORY_ACCESS_TOKEN']
         
-    def writeBlogPost(self, contents, title, category, visibility=1, acceptComment=1):
+    def writeBlogPost(self, contents, title, category, visibility=2, acceptComment=1):
         debugPrint("[+] Write blog post run...")
 
         # set url parameter

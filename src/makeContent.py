@@ -72,7 +72,9 @@ class makeContent:
 
                 debugPrint("token num: {0}, token price: {1}".format(token_num, token_price))
                 
-                return conv_answer
+                return {"response" : conv_answer, 
+                        "token" : token_num,
+                        "price" : token_price}
             else:
                 return ERRORCODE._QUERY_RES_ERR
         
@@ -96,15 +98,19 @@ class makeContent:
             
 
             query = CATEGORY_QUERY_BASE.format(self.theme, self.theme)
-
-            response = self.querySend(query)
+            
+            try:
+                response = self.querySend(query)
+            except Exception as e:
+                debugPrint("[-] Query send FAIL")
+                return ERRORCODE._QUERY_FAIL
             now = datetime.now()
             today = now.date().strftime("%Y-%m-%d")
             today_time = now.time().strftime("%H:%M:%S")
             # file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], theme, today, today_time])
 
             # answer parsing
-            parse_responses = response.split("\n")
+            parse_responses = response['response'].split("\n")
             re_compile = re.compile("^\d[.]")
             for parse_response in parse_responses:
                 if re_compile.match(parse_response) != None:
@@ -114,7 +120,7 @@ class makeContent:
                 f.write(write_string)
 
             debugPrint("[+] Make title Ok...")
-            return ERRORCODE.__SUCCESS
+            return response
         
         except Exception as e:
             debugPrint("[-] Make title FAIL...")
@@ -138,17 +144,21 @@ class makeContent:
 
             # query = "초보자에 관련된 운동 블로그를 써줘. 가슴 운동에 관한 운동 방법에 대해 써줘. 제일 처음 제목을 써줘. 다른 운동 블로그를 참고 하여 전문적인 표현을 많이 사용해 줘"
             self.query = CONTENT_QUERY_BASE.format(self.theme, query_string)
-            self.conv_query = self.convModule.convEN(self.query).text
+            # self.conv_query = self.convModule.convEN(self.query).text
             
-            self.conv_answer = self.querySend(self.conv_query)
-            self.parse_answer = self.conv_answer.split('\n')
+            try:
+                self.conv_answer = self.querySend(self.query)
+            except Exception as e:
+                debugPrint("[-] Query send FAIL")
+                return ERRORCODE._QUERY_FAIL
+            self.parse_answer = self.conv_answer['response'].split('\n')
 
             # write answer to file
             with open(file_path, 'w') as f:
-                f.write(self.conv_answer)
+                f.write(self.conv_answer['response'])
 
             debugPrint("[+] Make content Ok...")
-            return ERRORCODE._SUCCESS
+            return self.conv_answer
         
         except Exception as e:
             # print("makeContent funcing exception: {0}".format(e))
