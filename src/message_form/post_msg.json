@@ -47,7 +47,8 @@
 								"text": "Go to Blog",
 								"emoji": true
 							},
-							"value": "click_me_123"
+							"value": "click_me_123",
+							"url" : ""
 						}
 					]
 				}

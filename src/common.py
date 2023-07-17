@@ -4,23 +4,31 @@ import enum
 
 DEBUG_ENABLE = True
 
-class errorCode(enum.Enum):
-    SUCCESS = enum.auto()
-    THEME_EXIST = enum.auto()
-    THEME_NOT_EXIST = enum.auto()
-    TITLE_EXIST = enum.auto()
-    TITLE_ALL_USED = enum.auto()
-    REQUEST_GET_ERR = enum.auto()
-    CATEGORY_ID_NOT_EXIST = enum.auto()
-    SEND_MSG_FAIL = enum.auto()
-    SEND_MSG_ERR = enum.auto()
-    BODY_CHK_OK = enum.auto()
-    BODY_CHK_FAIL = enum.auto()
-    BODY_ACT_BUTTON = enum.auto()
-    BODY_ACT_INPUT = enum.auto()
-    THEME_DIR_NOT_EXIST = enum.auto()
-    THEME_FILE_NOT_EXIST = enum.auto()
-    THEME_FILE_EXIST = enum.auto()
+
+
+class ERRORCODE(enum.Enum):
+    _SUCCESS = 1
+    _THEME_EXIST = 2
+    _THEME_NOT_EXIST = 3
+    _TITLE_EXIST = 4
+    _TITLE_ALL_USED = 5
+    _REQUEST_GET_ERR = 6
+    _CATEGORY_ID_NOT_EXIST = 7
+    _SEND_MSG_FAIL = 8
+    _SEND_MSG_ERR = 9
+    _BODY_CHK_OK = 10
+    _BODY_CHK_FAIL = 11
+    _BODY_ACT_BUTTON = 12
+    _BODY_ACT_INPUT = 13
+    _THEME_DIR_NOT_EXIST = 14
+    _THEME_FILE_NOT_EXIST = 15
+    _THEME_FILE_EXIST = 16
+    _TITLE_USED = 17
+    _BT_DENY = 18
+    _BT_INVALID = 19
+    _BT_APPROVE = 20
+    _QUERY_RES_ERR = 21
+    _QUERY_FAIL = 22
     
 def debugPrint(data):
     if DEBUG_ENABLE:
