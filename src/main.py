@@ -170,7 +170,11 @@ class chatBlog:
             file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], self.title])
             with open(file_path, 'r') as con_f:
                 for line in con_f.readlines():
-                    pass
+                    if line.find("제목") != -1:
+                        continue
+                    blog_contents += "<p>"
+                    blog_contents += line
+                    blog_contents += "</p>"
 
                 cate_id = self.blog_bot.getCategoryID()
                 if type(cate_id) is dict:
