@@ -21,6 +21,7 @@ import threading
 import uvicorn
 
 DEBUG_ENABLE = True
+CHATBLOG_TIMEOUT = False
 
 APP_NAME = "webhook-listener"
 WEBHOOK_SECRET = "slackers"
@@ -28,6 +29,7 @@ WEBHOOK_SECRET = "slackers"
 evt = threading.Event()
 input_que = Queue()
 button_que = Queue()
+slash_que = Queue()
 app = FastAPI()
 
 # load config.json data
@@ -40,32 +42,38 @@ class webTool:
 
     def bodyCheck(self, body_request):
         try:
-            if body_request['actions'][0]['type'] == 'plain_text_input':
-                # load the body data form
-                with open("src/message_form/webhook_input_body_form.json", 'r', encoding="utf-8-sig") as bd_f:
-                    form_data = json.load(bd_f)
-                    # get key lists
-                    form_keys = form_data.keys()
-                    body_keys = body_request.keys()
+            if 'actions' in body_request:               # if block message
+                if body_request['actions'][0]['type'] == 'plain_text_input':
+                    # load the body data form
+                    with open("src/message_form/webhook_input_body_form.json", 'r', encoding="utf-8-sig") as bd_f:
+                        form_data = json.load(bd_f)
+                        # get key lists
+                        form_keys = form_data.keys()
+                        body_keys = body_request.keys()
 
-                    if form_keys == body_keys:
-                        return ERRORCODE._BODY_ACT_INPUT
-                    else:
-                        return ERRORCODE._BODY_CHK_FAIL
-            elif body_request['actions'][0]['type'] == 'button':
-                # load the body data form
-                with open("src/message_form/webhook_button_body_form.json", 'r', encoding="utf-8-sig") as bd_f:
-                    form_data = json.load(bd_f)
-                    # get key lists
-                    form_keys = form_data.keys()
-                    body_keys = body_request.keys()
+                        if form_keys == body_keys:
+                            return ERRORCODE._BODY_ACT_INPUT
+                        else:
+                            return ERRORCODE._BODY_CHK_FAIL
+                elif body_request['actions'][0]['type'] == 'button':
+                    # load the body data form
+                    with open("src/message_form/webhook_button_body_form.json", 'r', encoding="utf-8-sig") as bd_f:
+                        form_data = json.load(bd_f)
+                        # get key lists
+                        form_keys = form_data.keys()
+                        body_keys = body_request.keys()
 
-                    if form_keys == body_keys:
-                        return ERRORCODE._BODY_ACT_BUTTON
-                    else:
-                        return ERRORCODE._BODY_CHK_FAIL
-            else:
-                return ERRORCODE._BODY_CHK_FAIL
+                        if form_keys == body_keys:
+                            return ERRORCODE._BODY_ACT_BUTTON
+                        else:
+                            return ERRORCODE._BODY_CHK_FAIL
+                else:
+                    return ERRORCODE._BODY_CHK_FAIL
+            else:              # if slash command
+                if body_request['command'] == '/chatblog':
+                    return ERRORCODE._BODY_CHK_CMD
+                else:
+                    return ERRORCODE._BODY_CHK_FAIL
             
         except Exception as err:
             print(f"bodyCheck error: {err}")
@@ -158,9 +166,11 @@ class chatBlog:
 
     def post_blog(self):
         try:
+            blog_contents = ""
             file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], self.title])
             with open(file_path, 'r') as con_f:
-                blog_contents = con_f.read()
+                for line in con_f.readlines():
+                    blog_contents += 
 
                 cate_id = self.blog_bot.getCategoryID()
                 if type(cate_id) is dict:
@@ -179,26 +189,28 @@ class chatBlog:
     def run(self):
         while(True):
             evt.clear()
-            if self.theme_exist_chk() == ERRORCODE._THEME_FILE_EXIST:       # exist the theme file before creating
-                self.title = self.get_usable_title()
-                if self.title == ERRORCODE._TITLE_ALL_USED:
-                    self.input_request_proc()
-                else:
-                    if self.button_request_proc() == ERRORCODE._BT_APPROVE:
-                        self.gpt_bot.titleStatusUpdate(self.theme)
-                        res = self.gpt_bot.makeContent(self.title)
-                        if type(res) is dict:
-                            blog_url = self.post_blog()
-                            self.slack_bot.sendPostMsg(self.theme,
-                                                    self.title,
-                                                    res['token'],
-                                                    res['price'],
-                                                    blog_url)
+            if evt.wait() or CHATBLOG_TIMEOUT:              # slack slash command or timer timeout
+                evt.clear()
+                if self.theme_exist_chk() == ERRORCODE._THEME_FILE_EXIST:       # exist the theme file before creating
+                    self.title = self.get_usable_title()
+                    if self.title == ERRORCODE._TITLE_ALL_USED:
+                        self.input_request_proc()
                     else:
-                        # wait other request
-                        pass
-            else:
-                self.input_request_proc()
+                        if self.button_request_proc() == ERRORCODE._BT_APPROVE:
+                            self.gpt_bot.titleStatusUpdate(self.theme)
+                            res = self.gpt_bot.makeContent(self.title)
+                            if type(res) is dict:
+                                blog_url = self.post_blog()
+                                self.slack_bot.sendPostMsg(self.theme,
+                                                        self.title,
+                                                        res['token'],
+                                                        res['price'],
+                                                        blog_url)
+                        else:
+                            # wait other request
+                            pass
+                else:
+                    self.input_request_proc()
             
     def set_theme(self, theme):
         self.theme = theme
@@ -213,10 +225,16 @@ async def getBody(request: Request):
     parse_request_body = await request.body()
     # convert bytes data to string data and decode
     parse_request_body= parse.unquote(parse_request_body.decode('utf-8')).replace("payload=", "").replace("+", " ")
-    # convert str to json type
-    parse_request_body = json.loads(parse_request_body)
-
-    return parse_request_body
+    try:
+        # convert str to json type
+        conv_request_body = json.loads(parse_request_body)
+    except Exception as e:
+        parse_url = {}
+        for data in parse_request_body.split("&"):
+            tmp = data.split("=")
+            parse_url[tmp[0]] = tmp[1]
+        return parse_url
+    return conv_request_body
 
 async def print_request(request):
     print(f'request header       : {dict(request.headers.items())}' )
@@ -236,7 +254,6 @@ async def get_test():
 async def webhook(request: Request):
     try:
         web_t = webTool()
-        test_obj = chatBlog()
         header = web_t.getHeader(request)
         parm = web_t.getParm(request)
         body = await getBody(request)
@@ -266,15 +283,25 @@ async def webhook(request: Request):
 
                 return {"status": "OK"}
             elif bchk == ERRORCODE._BODY_ACT_INPUT:
-                # TODO: 슬랙에서 온 응답 값 출력 및 시그널 신호 전송
-                # TODO: uvicon 명령어로 이 함수를 실행시켜 놓고 python command로 main 함수를 실행시켜서 다른 프로세스라 서로 값을 못 주고 받나??
-                # TODO: 이 함수도 python thread로 돌리고, main 함수도 thread로 돌리면 신호가 갈까???
                 print("[+] Input data enter...")
-                input_que.put(web_t.getActVal(body))
+                try:
+                    input_que.put(web_t.getActVal(body))
+                except Exception as e:
+                    print(e)
                 evt.set()
-                
 
+                return {"status": "OK"}
+            elif bchk == ERRORCODE._BODY_CHK_CMD:
+                print("[+] Slash command enter...")
+                try:
+                    slash_que.put(body.get('text'))
+                except Exception as e:
+                    print(e)
+                evt.set()
+
+                return {"status": "OK"}
         except Exception as e:
+            print(body)
             return {"status": "body structure error"}
         
 
@@ -283,7 +310,7 @@ async def webhook(request: Request):
         return {"status": "ERR"}
 
 def web_th():
-    uvicorn.run(app, port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8888)
     
 
 if __name__ == '__main__':
