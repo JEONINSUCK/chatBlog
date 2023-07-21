@@ -1,6 +1,9 @@
 from googletrans import Translator
 from datetime import datetime
-from common import *
+try:
+    from common import *
+except Exception as e:
+    from src.common import *
 
 import openai
 import tiktoken

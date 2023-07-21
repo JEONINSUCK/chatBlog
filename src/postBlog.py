@@ -1,5 +1,8 @@
 from datetime import datetime
-from common import *
+try:
+    from common import *
+except Exception as e:
+    from src.common import *
 
 import requests
 import json
@@ -26,12 +29,54 @@ class postBlog:
         self.tistory_app_id = config['AUTH']['TISTORY_APP_ID']
         self.tistory_secret_key = config['AUTH']['TISTORY_SECRET_KEY']
         self.tistory_url = config['AUTH']['TISTORY_URL']
-        self.tistory_get_url = config['AUTH']['TISTORY_GET_URL']
+        self.tistory_auth_url = config['AUTH']['TISTORY_AUTH_URL']
         self.tistory_info_url = config['AUTH']['TISTORY_INFO_URL']
         self.tistory_category_url = config['AUTH']['TISTORY_CATEGORY_URL']
+        self.tistory_get_url = config['AUTH']['TISTORY_GET_URL']
         self.tistory_post_url = config['AUTH']['TISTORY_POST_URL']
+        self.tistory_list_url = config['AUTH']['TISTORY_LIST_URL']
         self.tistory_access_token = config['AUTH']['TISTORY_ACCESS_TOKEN']
         
+    def listBlogPost(self, page_num):
+        debugPrint("[+] List blog post run...")
+
+        # set url parameter
+        params = {
+            'access_token' : self.tistory_access_token,
+            'output' : "json",
+            'blogName' : self.getBlogName(),
+            'page' : page_num
+        }
+
+        res = requests.get(self.tistory_list_url, params=params)
+        if res.status_code == 200:
+            debugPrint("[+] List blog post OK...")
+            return res.json()['tistory']['item']['posts']
+        else:
+            debugPrint("[-] List blog post ERR...")
+            print(res)
+            return ERRORCODE._REQUEST_GET_ERR   
+
+    def readBlogPost(self,post_id):
+        debugPrint("[+] Read blog post run...")
+
+        # set url parameter
+        params = {
+            'access_token' : self.tistory_access_token,
+            'output' : "json",
+            'blogName' : self.getBlogName(),
+            'postId' : post_id
+        }
+
+        res = requests.get(self.tistory_get_url, params=params)
+        if res.status_code == 200:
+            debugPrint("[+] Read blog post OK...")
+            return res.json()['tistory']['item']['content']
+        else:
+            debugPrint("[-] Read blog post ERR...")
+            print(res)
+            return ERRORCODE._REQUEST_GET_ERR   
+
     def writeBlogPost(self, contents, title, category, visibility=2, acceptComment=1):
         debugPrint("[+] Write blog post run...")
 
@@ -71,7 +116,7 @@ class postBlog:
             }
 
             # request get url
-            res = requests.get(self.tistory_get_url, params=params)
+            res = requests.get(self.tistory_auth_url, params=params)
             if res.status_code == 200:
                 debugPrint("[+] Get access token OK...")
                 return res.text.replace('access_token=','')
@@ -152,19 +197,23 @@ if __name__ == '__main__':
 
     # print(test_postBlog.getBlogInfo())
     # print(test_postBlog.getBlogName())
-    print(test_postBlog.getCategoryID())
+    # print(test_postBlog.getCategoryID())
     file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH']])
     file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], os.listdir(file_path)[0]])
     test_contents = ""
     with open(file_path, 'r') as f:
-        # test_contents = f.read()
-        for line in f.readlines():
-            test_contents += line
-            test_contents += "\r\n"
+       # test_contents = f.read()
+       for line in f.readlines():
+          test_contents += "<p>"
+          test_contents += line
+          test_contents += "</p>"
 
-        id = int(test_postBlog.getCategoryID()['헬스'])
-        title = "체중 감량과 토닝을 위한 효과적인 운동"
+       id = int(test_postBlog.getCategoryID()['헬스'])
+       title = "체중 감량과 토닝을 위한 효과적인 운동"
 
-        print(test_postBlog.writeBlogPost(test_contents, title, id))
+       print(test_postBlog.writeBlogPost(test_contents, title, id))
+
+    # print(test_postBlog.listBlogPost(1))
+    # print(test_postBlog.readBlogPost(36))
     
     

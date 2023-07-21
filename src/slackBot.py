@@ -1,6 +1,11 @@
 from datetime import datetime
-from common import *
-from postBlog import postBlog
+try:
+    from common import *
+    from postBlog import postBlog
+except Exception as e:
+    from src.common import *
+    from src.postBlog import postBlog
+
 
 import json
 import requests
