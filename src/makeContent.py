@@ -94,10 +94,10 @@ class makeContent:
             # directory check
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
-            # file check
-            if os.path.exists(file_path):
-                debugPrint("[+] Titles EXIST...")
-                return ERRORCODE._THEME_EXIST
+            # # file check
+            # if os.path.exists(file_path):
+            #     debugPrint("[+] Titles EXIST...")
+            #     return ERRORCODE._THEME_EXIST
             
 
             query = CATEGORY_QUERY_BASE.format(self.theme, self.theme)
@@ -119,7 +119,7 @@ class makeContent:
                 if re_compile.match(parse_response) != None:
                     write_string += (parse_response + "\n")
                     
-            with open(file_path, 'w') as f:
+            with open(file_path, 'a') as f:
                 f.write(write_string)
 
             debugPrint("[+] Make title Ok...")
@@ -144,7 +144,12 @@ class makeContent:
             if os.path.exists(file_path):
                 debugPrint("[-] Make content FAIL...")
                 return ERRORCODE._TITLE_EXIST
-
+            # title duplication check
+            theme_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['TITLES_PATH'], self.theme])
+            with open(theme_path, 'r') as f:
+                tmp_data = f.read()
+                if tmp_data.find(query_string) == -1:
+                    return ERRORCODE._TITLE_DUPLI_ERR
             # query = "초보자에 관련된 운동 블로그를 써줘. 가슴 운동에 관한 운동 방법에 대해 써줘. 제일 처음 제목을 써줘. 다른 운동 블로그를 참고 하여 전문적인 표현을 많이 사용해 줘"
             self.query = CONTENT_QUERY_BASE.format(self.theme, query_string)
             # self.conv_query = self.convModule.convEN(self.query).text

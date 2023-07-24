@@ -111,14 +111,21 @@ class Bot:
 
                 if theme_list != None:
                     # fill each data to msessage form
-                    field_data = input_msg['blocks'][2]['fields']
+                    field_data = input_msg['blocks'][3]['accessory']['options']
                     # clear the icon
                     field_data.clear()
                     for theme in theme_list:
-                        field_form = {"type": "mrkdwn", "text": "• "+theme}
+                        field_form = {
+                            "text": {
+							"type": "plain_text",
+							"text": theme,
+							"emoji": True
+						},
+						"value": theme
+                        }
                         field_data.append(field_form)
                                 
-                    input_msg['blocks'][2]['fields'] = field_data
+                    input_msg['blocks'][3]['accessory']['options'] = field_data
 
                 self.sendMsg(input_msg)
         except Exception as e:

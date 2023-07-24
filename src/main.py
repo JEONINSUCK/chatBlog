@@ -67,6 +67,17 @@ class webTool:
                             return ERRORCODE._BODY_ACT_BUTTON
                         else:
                             return ERRORCODE._BODY_CHK_FAIL
+                elif body_request['actions'][0]['type'] == 'multi_static_select':
+                    # load the body data form
+                    with open("src/message_form/webhook_select_body_form.json", 'r', encoding="utf-8-sig") as bd_f:
+                        form_data = json.load(bd_f)
+                        # get key lists
+                        form_keys = form_data.keys()
+                        body_keys = body_request.keys()
+                        if form_keys == body_keys:
+                            return ERRORCODE._BODY_ACT_SELECT
+                        else:
+                            return ERRORCODE._BODY_CHK_FAIL
                 else:
                     return ERRORCODE._BODY_CHK_FAIL
             else:              # if slash command
@@ -92,6 +103,9 @@ class webTool:
 
     def getActVal(self, body: dict):
         return body['actions'][0]['value']
+    
+    def getSelVal(self, body: dict):
+        return body['actions'][0]['selected_options'][0]['text']['text']
 
     def getHeader(self, request: Request):
         return dict(request.headers.items())
@@ -137,6 +151,7 @@ class chatBlog:
         self.slack_bot.sendInputMsg(theme_list)
 
         evt.wait()
+        evt.clear()
         if input_que.empty() == False:
             theme_name = input_que.get()
             print(theme_name)
@@ -151,6 +166,7 @@ class chatBlog:
         self.slack_bot.sendApproveMsg(self.get_theme(), self.title)
         
         evt.wait()
+        evt.clear()
         if button_que.empty() == False:
             bt_type = button_que.get()
             if bt_type == config['CONF']['APPROVE_ACT_VAL']:
@@ -170,9 +186,9 @@ class chatBlog:
             file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], self.title])
             with open(file_path, 'r') as con_f:
                 for line in con_f.readlines():
-                    if line.find("제목") != -1:
+                    if line.find("제목") != -1:             # title line remove
                         continue
-                    blog_contents += "<p>"
+                    blog_contents += "<p>"                  # tistory understand "\n" to "<p></p>"
                     blog_contents += line
                     blog_contents += "</p>"
 
@@ -192,13 +208,13 @@ class chatBlog:
 
     def run(self):
         while(True):
-            evt.clear()
             if evt.wait() or CHATBLOG_TIMEOUT:              # slack slash command or timer timeout
                 evt.clear()
                 if self.theme_exist_chk() == ERRORCODE._THEME_FILE_EXIST:       # exist the theme file before creating
                     self.title = self.get_usable_title()
                     if self.title == ERRORCODE._TITLE_ALL_USED:
                         self.input_request_proc()
+                        evt.set()
                     else:
                         if self.button_request_proc() == ERRORCODE._BT_APPROVE:
                             self.gpt_bot.titleStatusUpdate(self.theme)
@@ -215,6 +231,7 @@ class chatBlog:
                             pass
                 else:
                     self.input_request_proc()
+                    evt.set()
             
     def set_theme(self, theme):
         self.theme = theme
@@ -282,12 +299,15 @@ async def webhook(request: Request):
                     except Exception as e:
                         print(e)
                     evt.set()
+                elif act_val == config['CONF']['URL_ACT_VAL']:
+                    print("[+] Go to URL button enter...")
                 else:
                     print("action value not found")
 
                 return {"status": "OK"}
             elif bchk == ERRORCODE._BODY_ACT_INPUT:
                 print("[+] Input data enter...")
+                # print(web_t.getActVal(body))
                 try:
                     input_que.put(web_t.getActVal(body))
                 except Exception as e:
@@ -304,6 +324,14 @@ async def webhook(request: Request):
                 evt.set()
 
                 return {"status": "OK"}
+            elif bchk == ERRORCODE._BODY_ACT_SELECT:
+                print("[+] Theme select request enter...")
+                # print(web_t.getSelVal(body))
+                try:
+                    input_que.put(web_t.getSelVal(body))
+                except Exception as e:
+                    print(e)
+                evt.set()
         except Exception as e:
             print(body)
             return {"status": "body structure error"}
