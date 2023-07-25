@@ -49,8 +49,8 @@ class Bot:
                 return ERRORCODE._SEND_MSG_FAIL
 
         except Exception as e:
-            debugPrint("[-] Send message FAIL...")
-            print("sendMsg funcing exception: {0}".format(e))
+            debugPrint("[-] Main Send function FAIL...")
+            debugPrint("sendMsg funcing exception: {0}".format(e))
 
 
     def sendApproveMsg(self, theme, title):
@@ -73,8 +73,8 @@ class Bot:
 
                 self.sendMsg(approval_msg)
         except Exception as e:
-            # debugPrint("[-] Send message FAIL...")
-            print("sendApproveMsg funcing exception: {0}".format(e))
+            debugPrint("[-] Send approval message FAIL...")
+            debugPrint("sendApproveMsg funcing exception: {0}".format(e))
 
 
     def sendPostMsg(self,theme, title, token, price, url):
@@ -99,7 +99,7 @@ class Bot:
             debugPrint("[+] Send post message OK...")
         except Exception as e:
             debugPrint("[-] Send post message FAIL...")
-            print("sendPostMsg funcing exception: {0}".format(e))
+            debugPrint("sendPostMsg funcing exception: {0}".format(e))
 
 
     def sendInputMsg(self, theme_list=None):
@@ -129,8 +129,8 @@ class Bot:
 
                 self.sendMsg(input_msg)
         except Exception as e:
-            # debugPrint("[-] Send message FAIL...")
-            print("sendInputMsg funcing exception: {0}".format(e))
+            debugPrint("[-] Send input message FAIL...")
+            debugPrint("sendInputMsg funcing exception: {0}".format(e))
 
 
     def sendButtonMsg(self):

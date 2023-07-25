@@ -94,12 +94,7 @@ class makeContent:
             # directory check
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
-            # # file check
-            # if os.path.exists(file_path):
-            #     debugPrint("[+] Titles EXIST...")
-            #     return ERRORCODE._THEME_EXIST
             
-
             query = CATEGORY_QUERY_BASE.format(self.theme, self.theme)
             
             try:
@@ -119,6 +114,18 @@ class makeContent:
                 if re_compile.match(parse_response) != None:
                     write_string += (parse_response + "\n")
                     
+            if os.path.exists(file_path):                # file exist check
+                with open(file_path, 'r') as f:          # title duplication check
+                    write_str_list = write_string.split("\n")
+                    write_string = ""
+                    tmp_data = f.read()
+                    for cmp_string in write_str_list:
+                        re_obj = re.compile("^\d[.]")
+                        if re_obj.search(cmp_string) != None:
+                            if tmp_data.find(cmp_string) != -1:
+                                continue
+                            write_string += (cmp_string + "\n")
+
             with open(file_path, 'a') as f:
                 f.write(write_string)
 
@@ -127,7 +134,7 @@ class makeContent:
         
         except Exception as e:
             debugPrint("[-] Make title FAIL...")
-            # print("makeCategory funcing exception: {0}".format(e))
+            debugPrint("makeCategory funcing exception: {0}".format(e))
 
 
     def makeContent(self, query_string: str):
@@ -140,16 +147,7 @@ class makeContent:
             # directory check
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
-            # file check
-            if os.path.exists(file_path):
-                debugPrint("[-] Make content FAIL...")
-                return ERRORCODE._TITLE_EXIST
-            # title duplication check
-            theme_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['TITLES_PATH'], self.theme])
-            with open(theme_path, 'r') as f:
-                tmp_data = f.read()
-                if tmp_data.find(query_string) == -1:
-                    return ERRORCODE._TITLE_DUPLI_ERR
+            
             # query = "초보자에 관련된 운동 블로그를 써줘. 가슴 운동에 관한 운동 방법에 대해 써줘. 제일 처음 제목을 써줘. 다른 운동 블로그를 참고 하여 전문적인 표현을 많이 사용해 줘"
             self.query = CONTENT_QUERY_BASE.format(self.theme, query_string)
             # self.conv_query = self.convModule.convEN(self.query).text
@@ -169,8 +167,8 @@ class makeContent:
             return self.conv_answer
         
         except Exception as e:
-            # print("makeContent funcing exception: {0}".format(e))
             debugPrint("[-] Make content FAIL...")
+            debugPrint("makeContent funcing exception: {0}".format(e))
 
     def getThemeSrc(self):
         try:
@@ -178,7 +176,7 @@ class makeContent:
             return os.listdir(dir_path)
         except Exception as e:
             debugPrint("[-] Get theme source FAIL")
-            print("getThemeSrc funcing exception: {0}".format(e)) 
+            debugPrint("getThemeSrc funcing exception: {0}".format(e)) 
 
     def titleStatusUpdate(self, theme):
         try:
@@ -189,7 +187,7 @@ class makeContent:
                 f.write(self.write_string)
         except Exception as e:
             debugPrint("[-] Update title status FAIL")
-            print("titleStatusUpdate funcing exception: {0}".format(e))
+            debugPrint("titleStatusUpdate funcing exception: {0}".format(e))
 
     def getTitleSrc(self, theme):
         try:
@@ -226,7 +224,7 @@ class makeContent:
             
         except Exception as e:
             debugPrint("[-] Get category title FAIL")
-            print("getTitleSrc funcing exception: {0}".format(e))                
+            debugPrint("getTitleSrc funcing exception: {0}".format(e))                
 
     
     def setTheme(self, theme):
@@ -307,12 +305,13 @@ if __name__ == '__main__':
     test_makeContent = makeContent()
     test_tokenTool = tokenUtility()    
     
-    # test_makeContent.setTheme("헬스")
-    # test_makeContent.makeCategory()
-    # title = test_makeContent.getTitleSrc()
+    test_makeContent.setTheme("헬스")
+    test_makeContent.makeCategory()
+    # title = test_makeContent.getTitleSrc("헬스")
+    # print(title)
     # test_makeContent.makeContent(title)
-    for theme in test_makeContent.getThemeSrc():
-        if test_makeContent.getTitleSrc(theme) == ERRORCODE._TITLE_USED:
-            print("not exist using title")
+    # for theme in test_makeContent.getThemeSrc():
+    #     if test_makeContent.getTitleSrc(theme) == ERRORCODE._TITLE_USED:
+    #         print("not exist using title")
     
     

@@ -19,12 +19,15 @@ import json
 import os
 import threading
 import uvicorn
+import schedule
+import time
 
 DEBUG_ENABLE = True
-CHATBLOG_TIMEOUT = False
 
 APP_NAME = "webhook-listener"
 WEBHOOK_SECRET = "slackers"
+
+chatblog_timeout = False
 
 evt = threading.Event()
 input_que = Queue()
@@ -207,9 +210,12 @@ class chatBlog:
                     
 
     def run(self):
+        print("[+] ChatBlog Agent run...")
+        global chatblog_timeout
         while(True):
-            if evt.wait() or CHATBLOG_TIMEOUT:              # slack slash command or timer timeout
+            if chatblog_timeout:              # slack slash command or timer timeout
                 evt.clear()
+                chatblog_timeout = False
                 if self.theme_exist_chk() == ERRORCODE._THEME_FILE_EXIST:       # exist the theme file before creating
                     self.title = self.get_usable_title()
                     if self.title == ERRORCODE._TITLE_ALL_USED:
@@ -217,9 +223,9 @@ class chatBlog:
                         evt.set()
                     else:
                         if self.button_request_proc() == ERRORCODE._BT_APPROVE:
-                            self.gpt_bot.titleStatusUpdate(self.theme)
                             res = self.gpt_bot.makeContent(self.title)
                             if type(res) is dict:
+                                self.gpt_bot.titleStatusUpdate(self.theme)
                                 blog_url = self.post_blog()
                                 self.slack_bot.sendPostMsg(self.theme,
                                                         self.title,
@@ -232,7 +238,6 @@ class chatBlog:
                 else:
                     self.input_request_proc()
                     evt.set()
-            
     def set_theme(self, theme):
         self.theme = theme
 
@@ -257,14 +262,6 @@ async def getBody(request: Request):
         return parse_url
     return conv_request_body
 
-async def print_request(request):
-    print(f'request header       : {dict(request.headers.items())}' )
-    print(f'request query params : {dict(request.query_params.items())}')  
-    try : 
-        print(f'request json         : {await request.json()}')
-    except Exception as err:
-        print(f'request body         : {await getBody(request)}')
-
         
 @app.get("/")
 async def get_test():
@@ -274,6 +271,7 @@ async def get_test():
 @app.post("/webhook", status_code=200)
 async def webhook(request: Request):
     try:
+        global chatblog_timeout
         web_t = webTool()
         header = web_t.getHeader(request)
         parm = web_t.getParm(request)
@@ -282,8 +280,6 @@ async def webhook(request: Request):
         try:
             bchk = web_t.bodyCheck(body)
             if  bchk == ERRORCODE._BODY_ACT_BUTTON:
-                # await print_request(request)
-                
                 act_val = web_t.getActVal(body)
                 if act_val == config['CONF']['APPROVE_ACT_VAL']:
                     print("[+] Approve button enter...")
@@ -321,7 +317,8 @@ async def webhook(request: Request):
                     slash_que.put(body.get('text'))
                 except Exception as e:
                     print(e)
-                evt.set()
+                # evt.set()
+                chatblog_timeout = True
 
                 return {"status": "OK"}
             elif bchk == ERRORCODE._BODY_ACT_SELECT:
@@ -342,8 +339,19 @@ async def webhook(request: Request):
         return {"status": "ERR"}
 
 def web_th():
+    print("[+] Web site run...")
     uvicorn.run(app, host="0.0.0.0", port=8888)
-    
+
+def scheduler_th():
+    print("[+] Scheduler run...")
+    def scheduler_timeout():
+        global chatblog_timeout
+        chatblog_timeout = True
+
+    schedule.every().day.at("08:30").do(scheduler_timeout)
+    while(True):
+        schedule.run_pending()
+        time.sleep(1)
 
 if __name__ == '__main__':
     chat_blog = chatBlog()
@@ -358,11 +366,11 @@ if __name__ == '__main__':
     
     th_web = threading.Thread(target=web_th)
     th_chat_blog = threading.Thread(target=chat_blog.run)
+    th_scheduler = threading.Thread(target=scheduler_th)
 
     th_web.start()
     th_chat_blog.start()
+    th_scheduler.start()
 
-    # chat_blog.run()
-    
     
     

@@ -54,7 +54,7 @@ class postBlog:
             return res.json()['tistory']['item']['posts']
         else:
             debugPrint("[-] List blog post ERR...")
-            print(res)
+            debugPrint(res)
             return ERRORCODE._REQUEST_GET_ERR   
 
     def readBlogPost(self,post_id):
@@ -74,7 +74,7 @@ class postBlog:
             return res.json()['tistory']['item']['content']
         else:
             debugPrint("[-] Read blog post ERR...")
-            print(res)
+            debugPrint(res)
             return ERRORCODE._REQUEST_GET_ERR   
 
     def writeBlogPost(self, contents, title, category, visibility=2, acceptComment=1):
@@ -99,7 +99,7 @@ class postBlog:
             return res.json()['tistory']['url']
         else:
             debugPrint("[-] Write blog post ERR...")
-            print(res)
+            debugPrint(res)
             return ERRORCODE._REQUEST_GET_ERR
     
     # need to update 'TISTORY_CODE' value everytime
@@ -125,7 +125,7 @@ class postBlog:
                 return ERRORCODE._REQUEST_GET_ERR
         except Exception as e:
             debugPrint("[-] Get access token FAIL...")
-            # print("getAccessToken funcing exception: {0}".format(e))
+            debugPrint("getAccessToken funcing exception: {0}".format(e))
 
 
     def getBlogInfo(self):
@@ -147,7 +147,7 @@ class postBlog:
                 return ERRORCODE._REQUEST_GET_ERR
         except Exception as e:
             debugPrint("[-] Get blog info FAIL...")
-            # print("getBlogInfo funcing exception: {0}".format(e))
+            debugPrint("getBlogInfo funcing exception: {0}".format(e))
 
 
     def getCategoryID(self):
@@ -181,7 +181,7 @@ class postBlog:
                 return ERRORCODE._REQUEST_GET_ERR
         except Exception as e:
             debugPrint("[-] Get category ID FAIL...")
-            # print("getCategoryID funcing exception: {0}".format(e))
+            debugPrint("getCategoryID funcing exception: {0}".format(e))
 
 
     def getBlogName(self):
