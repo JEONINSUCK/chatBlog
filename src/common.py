@@ -29,6 +29,9 @@ class ERRORCODE(enum.Enum):
     _BT_APPROVE = 20
     _QUERY_RES_ERR = 21
     _QUERY_FAIL = 22
+    _BODY_CHK_CMD = 23
+    _BODY_ACT_SELECT = 24
+    _TITLE_DUPLI_ERR = 25
     
 def debugPrint(data):
     if DEBUG_ENABLE:

@@ -1,6 +1,11 @@
 from datetime import datetime
-from common import *
-from postBlog import postBlog
+try:
+    from common import *
+    from postBlog import postBlog
+except Exception as e:
+    from src.common import *
+    from src.postBlog import postBlog
+
 
 import json
 import requests
@@ -44,8 +49,8 @@ class Bot:
                 return ERRORCODE._SEND_MSG_FAIL
 
         except Exception as e:
-            debugPrint("[-] Send message FAIL...")
-            print("sendMsg funcing exception: {0}".format(e))
+            debugPrint("[-] Main Send function FAIL...")
+            debugPrint("sendMsg funcing exception: {0}".format(e))
 
 
     def sendApproveMsg(self, theme, title):
@@ -68,8 +73,8 @@ class Bot:
 
                 self.sendMsg(approval_msg)
         except Exception as e:
-            # debugPrint("[-] Send message FAIL...")
-            print("sendApproveMsg funcing exception: {0}".format(e))
+            debugPrint("[-] Send approval message FAIL...")
+            debugPrint("sendApproveMsg funcing exception: {0}".format(e))
 
 
     def sendPostMsg(self,theme, title, token, price, url):
@@ -94,7 +99,7 @@ class Bot:
             debugPrint("[+] Send post message OK...")
         except Exception as e:
             debugPrint("[-] Send post message FAIL...")
-            print("sendPostMsg funcing exception: {0}".format(e))
+            debugPrint("sendPostMsg funcing exception: {0}".format(e))
 
 
     def sendInputMsg(self, theme_list=None):
@@ -106,19 +111,26 @@ class Bot:
 
                 if theme_list != None:
                     # fill each data to msessage form
-                    field_data = input_msg['blocks'][2]['fields']
+                    field_data = input_msg['blocks'][3]['accessory']['options']
                     # clear the icon
                     field_data.clear()
                     for theme in theme_list:
-                        field_form = {"type": "mrkdwn", "text": "• "+theme}
+                        field_form = {
+                            "text": {
+							"type": "plain_text",
+							"text": theme,
+							"emoji": True
+						},
+						"value": theme
+                        }
                         field_data.append(field_form)
                                 
-                    input_msg['blocks'][2]['fields'] = field_data
+                    input_msg['blocks'][3]['accessory']['options'] = field_data
 
                 self.sendMsg(input_msg)
         except Exception as e:
-            # debugPrint("[-] Send message FAIL...")
-            print("sendInputMsg funcing exception: {0}".format(e))
+            debugPrint("[-] Send input message FAIL...")
+            debugPrint("sendInputMsg funcing exception: {0}".format(e))
 
 
     def sendButtonMsg(self):

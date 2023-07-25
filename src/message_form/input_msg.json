@@ -11,21 +11,37 @@
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "블로그에 게시할 카테고리가 없습니다. 카테고리를 생성할 테마를 선정해주세요."
+				"text": "블로그에 게시할 주제가 없습니다. 주제를 생성하기 위해 테마를 선정해주세요."
 			}
+		},
+		{
+			"type": "divider"
 		},
 		{
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "*Category List*"
+				"text": "*테마 종류*"
 			},
-			"fields": [
-				{
-					"type": "mrkdwn",
-					"text": ":wrong:"
-				}
-			]
+			"accessory": {
+				"type": "multi_static_select",
+				"placeholder": {
+					"type": "plain_text",
+					"text": "Click to select the theme",
+					"emoji": true
+				},
+				"options": [
+					{
+						"text": {
+							"type": "plain_text",
+							"text": "No exist Theme",
+							"emoji": true
+						},
+						"value": "value-2"
+					}
+				],
+				"action_id": "multi_static_select-action"
+			}
 		},
 		{
 			"type": "divider"
@@ -39,7 +55,7 @@
 			},
 			"label": {
 				"type": "plain_text",
-				"text": "Theme name",
+				"text": "Theme name input block",
 				"emoji": true
 			}
 		}
