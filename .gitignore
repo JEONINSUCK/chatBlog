@@ -3,3 +3,5 @@ memory/contents/*
 blogPost/*
 config.json
 __pycache__
+nohup.out
+*.log
