@@ -32,6 +32,7 @@ class ERRORCODE(enum.Enum):
     _BODY_CHK_CMD = 23
     _BODY_ACT_SELECT = 24
     _TITLE_DUPLI_ERR = 25
+    _PARAM_ERR = 26
     
 def debugPrint(data):
     if DEBUG_ENABLE:

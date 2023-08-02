@@ -43,3 +43,442 @@ INFO:     Started server process [677299]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8888 (Press CTRL+C to quit)
+[+] Go to URL button enter...
+INFO:     54.147.31.188:13554 - "POST /webhook HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.146.59:35176 - "GET / HTTP/1.1" 200 OK
+INFO:     167.94.146.59:56762 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.146.59:36344 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+INFO:     162.142.125.223:41960 - "GET / HTTP/1.1" 200 OK
+INFO:     162.142.125.223:46092 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     162.142.125.223:40858 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     198.235.24.71:65114 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     64.62.197.106:48113 - "GET / HTTP/1.1" 200 OK
+INFO:     64.62.197.101:53757 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     64.62.197.100:59173 - "GET /?format=json HTTP/1.1" 200 OK
+WARNING:  Unsupported upgrade request.
+WARNING:  No supported WebSocket library detected. Please use "pip install 'uvicorn[standard]'", or install 'websockets' or 'wsproto' manually.
+WARNING:  Invalid HTTP request received.
+INFO:     185.216.140.186:42210 - "GET /ping.js HTTP/1.1" 404 Not Found
+INFO:     205.210.31.108:64584 - "GET / HTTP/1.1" 200 OK
+INFO:     192.241.210.64:50756 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     205.210.31.106:60542 - "GET / HTTP/1.1" 200 OK
+INFO:     60.191.125.35:53466 - "HEAD / HTTP/1.1" 405 Method Not Allowed
+INFO:     198.235.24.162:59402 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     103.203.58.5:37106 - "GET / HTTP/1.1" 200 OK
+INFO:     198.235.24.48:62346 - "GET / HTTP/1.1" 200 OK
+INFO:     89.248.164.165:45500 - "GET /ping.js HTTP/1.1" 404 Not Found
+23-07-26 08:30:00 > [+] Get category title OK...
+23-07-26 08:30:00 > [+] Send approval message...
+23-07-26 08:30:00 > [+] Send message OK...
+INFO:     64.62.197.112:11943 - "GET / HTTP/1.1" 200 OK
+INFO:     64.62.197.120:42863 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     64.62.197.119:26671 - "GET /?format=json HTTP/1.1" 200 OK
+WARNING:  Unsupported upgrade request.
+WARNING:  No supported WebSocket library detected. Please use "pip install 'uvicorn[standard]'", or install 'websockets' or 'wsproto' manually.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+[+] Approve button enter...
+INFO:     3.89.182.183:17074 - "POST /webhook HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+23-07-26 12:00:03 > [+] User approve to post...
+23-07-26 12:00:03 > [+] Make content run...
+23-07-26 12:00:59 > token num: 33, token price: 0.07919999999999999
+23-07-26 12:00:59 > [+] Make content Ok...
+23-07-26 12:00:59 > [+] Get category ID run...
+23-07-26 12:00:59 > [+] Get blog info run...
+23-07-26 12:01:00 > [+] Get blog info OK...
+23-07-26 12:01:00 > [+] Get category ID OK...
+23-07-26 12:01:00 > [+] Write blog post run...
+23-07-26 12:01:00 > [+] Get blog info run...
+23-07-26 12:01:00 > [+] Get blog info OK...
+23-07-26 12:01:01 > [+] Write blog post OK...
+23-07-26 12:01:01 > [+] Send post message run...
+23-07-26 12:01:01 > [+] Send message OK...
+23-07-26 12:01:01 > [+] Send post message OK...
+INFO:     167.248.133.49:39990 - "GET / HTTP/1.1" 200 OK
+INFO:     167.248.133.49:55144 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     167.248.133.49:42238 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     198.235.24.73:57284 - "GET / HTTP/1.0" 200 OK
+INFO:     192.241.235.9:46578 - "GET / HTTP/1.1" 200 OK
+WARNING:  Unsupported upgrade request.
+WARNING:  No supported WebSocket library detected. Please use "pip install 'uvicorn[standard]'", or install 'websockets' or 'wsproto' manually.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.138.34:49212 - "GET / HTTP/1.1" 200 OK
+INFO:     167.94.138.34:42114 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.138.34:56320 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+INFO:     185.216.140.186:44532 - "GET /ping.js HTTP/1.1" 404 Not Found
+[+] Go to URL button enter...
+INFO:     52.90.123.85:54184 - "POST /webhook HTTP/1.1" 200 OK
+INFO:     205.210.31.250:64182 - "GET / HTTP/1.1" 200 OK
+INFO:     185.216.140.186:34744 - "GET /ping.js HTTP/1.1" 404 Not Found
+23-07-27 08:30:00 > [+] Get category title OK...
+23-07-27 08:30:00 > [+] Send approval message...
+23-07-27 08:30:01 > [+] Send message OK...
+[+] Approve button enter...
+INFO:     52.87.247.121:42988 - "POST /webhook HTTP/1.1" 200 OK
+23-07-27 08:30:18 > [+] User approve to post...
+23-07-27 08:30:18 > [+] Make content run...
+23-07-27 08:30:58 > token num: 34, token price: 0.0816
+23-07-27 08:30:58 > [+] Make content Ok...
+23-07-27 08:30:58 > [+] Get category ID run...
+23-07-27 08:30:58 > [+] Get blog info run...
+23-07-27 08:30:58 > [+] Get blog info OK...
+23-07-27 08:30:58 > [+] Get category ID OK...
+23-07-27 08:30:58 > [+] Write blog post run...
+23-07-27 08:30:58 > [+] Get blog info run...
+23-07-27 08:30:58 > [+] Get blog info OK...
+23-07-27 08:30:59 > [+] Write blog post OK...
+23-07-27 08:30:59 > [+] Send post message run...
+23-07-27 08:30:59 > [+] Send message OK...
+23-07-27 08:30:59 > [+] Send post message OK...
+[+] Go to URL button enter...
+INFO:     52.91.250.9:59050 - "POST /webhook HTTP/1.1" 200 OK
+[+] Go to URL button enter...
+INFO:     44.197.115.21:25916 - "POST /webhook HTTP/1.1" 200 OK
+[+] Deny button enter...
+INFO:     3.215.23.172:64536 - "POST /webhook HTTP/1.1" 200 OK
+[+] Approve button enter...
+INFO:     3.85.245.77:42312 - "POST /webhook HTTP/1.1" 200 OK
+[+] Go to URL button enter...
+INFO:     18.232.161.10:64970 - "POST /webhook HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     8.219.119.97:50722 - "GET / HTTP/1.1" 200 OK
+INFO:     8.219.119.97:50956 - "GET /sitemap.xml HTTP/1.1" 404 Not Found
+INFO:     8.219.119.97:50996 - "GET /robots.txt HTTP/1.1" 404 Not Found
+INFO:     103.80.134.23:52242 - "GET / HTTP/1.1" 200 OK
+INFO:     91.204.226.17:56514 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     185.216.140.186:43370 - "GET /ping.js HTTP/1.1" 404 Not Found
+INFO:     198.199.103.89:42358 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     164.92.229.253:57360 - "GET / HTTP/1.1" 200 OK
+INFO:     198.235.24.52:50156 - "GET / HTTP/1.0" 200 OK
+INFO:     64.62.197.32:31561 - "GET / HTTP/1.1" 200 OK
+INFO:     64.62.197.45:61169 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     64.62.197.40:54827 - "GET /?format=json HTTP/1.1" 200 OK
+WARNING:  Unsupported upgrade request.
+WARNING:  No supported WebSocket library detected. Please use "pip install 'uvicorn[standard]'", or install 'websockets' or 'wsproto' manually.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     192.241.212.23:45306 - "GET /druid/index.html HTTP/1.1" 404 Not Found
+INFO:     185.216.140.186:57898 - "GET /ping.js HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     165.22.60.26:33450 - "GET /aaa9 HTTP/1.1" 404 Not Found
+INFO:     165.22.60.26:33464 - "GET /aab8 HTTP/1.1" 404 Not Found
+INFO:     165.22.60.26:33468 - "GET / HTTP/1.1" 200 OK
+INFO:     167.248.133.189:32894 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     167.248.133.189:56634 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     205.210.31.109:53625 - "GET / HTTP/1.0" 200 OK
+WARNING:  Invalid HTTP request received.
+23-07-28 08:30:00 > [+] Get category title OK...
+23-07-28 08:30:00 > [+] Send approval message...
+23-07-28 08:30:00 > [+] Send message OK...
+[+] Approve button enter...
+INFO:     3.88.110.113:52172 - "POST /webhook HTTP/1.1" 200 OK
+23-07-28 09:06:01 > [+] User deny to post...
+INFO:     64.62.197.85:5693 - "GET / HTTP/1.1" 200 OK
+INFO:     64.62.197.83:62787 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     64.62.197.79:45875 - "GET /?format=json HTTP/1.1" 200 OK
+WARNING:  Unsupported upgrade request.
+WARNING:  No supported WebSocket library detected. Please use "pip install 'uvicorn[standard]'", or install 'websockets' or 'wsproto' manually.
+WARNING:  Invalid HTTP request received.
+INFO:     71.6.134.231:46838 - "GET / HTTP/1.1" 200 OK
+INFO:     205.210.31.106:63532 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.146.56:34544 - "GET / HTTP/1.1" 200 OK
+INFO:     167.94.146.56:53162 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.146.56:60842 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     185.216.140.186:56338 - "GET /ping.js HTTP/1.1" 404 Not Found
+INFO:     183.136.225.9:34906 - "GET / HTTP/1.1" 200 OK
+INFO:     183.136.225.9:35596 - "GET / HTTP/1.1" 200 OK
+INFO:     183.136.225.9:35744 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     183.136.225.9:36152 - "GET /robots.txt HTTP/1.1" 404 Not Found
+INFO:     192.241.215.38:58270 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     198.235.24.39:59094 - "GET / HTTP/1.1" 200 OK
+INFO:     205.210.31.181:65440 - "GET / HTTP/1.1" 200 OK
+INFO:     64.225.75.125:52032 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     178.32.197.92:49565 - "GET / HTTP/1.1" 200 OK
+INFO:     42.200.193.83:25293 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     79.137.65.46:53787 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     89.248.164.165:42864 - "GET /ping.js HTTP/1.1" 404 Not Found
+INFO:     198.235.24.248:62578 - "GET / HTTP/1.1" 200 OK
+INFO:     185.180.143.77:49784 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     162.142.125.215:50336 - "GET / HTTP/1.1" 200 OK
+INFO:     162.142.125.215:54760 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     162.142.125.215:42626 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     185.216.140.186:35018 - "GET /ping.js HTTP/1.1" 404 Not Found
+INFO:     43.155.152.6:34982 - "GET / HTTP/1.1" 200 OK
+INFO:     209.141.54.245:46652 - "GET / HTTP/1.1" 200 OK
+INFO:     209.141.54.245:46652 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     205.185.118.120:48178 - "GET / HTTP/1.1" 200 OK
+INFO:     205.185.118.120:48178 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     209.141.35.128:16690 - "GET / HTTP/1.1" 200 OK
+INFO:     209.141.35.128:16690 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+23-07-29 08:30:00 > [+] Get category title OK...
+23-07-29 08:30:00 > [+] Send approval message...
+23-07-29 08:30:01 > [+] Send message OK...
+[+] Approve button enter...
+INFO:     44.212.44.127:12864 - "POST /webhook HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+23-07-29 08:30:13 > [+] User approve to post...
+23-07-29 08:30:13 > [+] Make content run...
+23-07-29 08:30:50 > token num: 33, token price: 0.07919999999999999
+23-07-29 08:30:50 > [+] Make content Ok...
+23-07-29 08:30:50 > [+] Get category ID run...
+23-07-29 08:30:50 > [+] Get blog info run...
+23-07-29 08:30:50 > [+] Get blog info OK...
+23-07-29 08:30:51 > [+] Get category ID OK...
+23-07-29 08:30:51 > [+] Write blog post run...
+23-07-29 08:30:51 > [+] Get blog info run...
+23-07-29 08:30:51 > [+] Get blog info OK...
+23-07-29 08:30:51 > [+] Write blog post OK...
+23-07-29 08:30:51 > [+] Send post message run...
+23-07-29 08:30:51 > [+] Send message OK...
+23-07-29 08:30:51 > [+] Send post message OK...
+INFO:     167.248.133.36:59480 - "GET / HTTP/1.1" 200 OK
+INFO:     167.248.133.36:49096 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     167.248.133.36:43208 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     205.210.31.87:53285 - "GET / HTTP/1.0" 200 OK
+INFO:     8.219.192.252:59504 - "GET /login?from=%2F HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+INFO:     184.105.247.247:63321 - "GET / HTTP/1.1" 200 OK
+INFO:     184.105.247.252:42255 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     184.105.247.238:64167 - "GET /?format=json HTTP/1.1" 200 OK
+WARNING:  Unsupported upgrade request.
+WARNING:  No supported WebSocket library detected. Please use "pip install 'uvicorn[standard]'", or install 'websockets' or 'wsproto' manually.
+WARNING:  Invalid HTTP request received.
+INFO:     185.216.140.186:60792 - "GET /ping.js HTTP/1.1" 404 Not Found
+INFO:     198.235.24.224:64224 - "GET / HTTP/1.1" 200 OK
+[+] Go to URL button enter...
+INFO:     18.205.154.119:54922 - "POST /webhook HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.138.127:49264 - "GET / HTTP/1.1" 200 OK
+INFO:     167.94.138.127:43218 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.138.127:54348 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     162.243.139.35:34790 - "GET / HTTP/1.1" 200 OK
+INFO:     35.203.210.166:60662 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     185.216.140.186:35504 - "GET /ping.js HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+23-07-30 08:30:00 > [+] Get category title OK...
+23-07-30 08:30:00 > [+] Send approval message...
+23-07-30 08:30:00 > [+] Send message OK...
+INFO:     198.199.108.7:48128 - "GET /druid/index.html HTTP/1.1" 404 Not Found
+INFO:     185.180.140.6:47978 - "GET / HTTP/1.1" 200 OK
+INFO:     185.180.140.6:47992 - "GET /showLogin.cc HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     184.105.247.244:27221 - "GET / HTTP/1.1" 200 OK
+INFO:     184.105.247.251:31653 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     184.105.247.235:14215 - "GET /?format=json HTTP/1.1" 200 OK
+WARNING:  Unsupported upgrade request.
+WARNING:  No supported WebSocket library detected. Please use "pip install 'uvicorn[standard]'", or install 'websockets' or 'wsproto' manually.
+WARNING:  Invalid HTTP request received.
+[+] Approve button enter...
+INFO:     34.228.57.100:52814 - "POST /webhook HTTP/1.1" 200 OK
+23-07-30 14:55:28 > [+] User approve to post...
+23-07-30 14:55:28 > [+] Make content run...
+23-07-30 14:56:11 > token num: 36, token price: 0.0864
+23-07-30 14:56:11 > [+] Make content Ok...
+23-07-30 14:56:11 > [+] Get category ID run...
+23-07-30 14:56:11 > [+] Get blog info run...
+23-07-30 14:56:11 > [+] Get blog info OK...
+23-07-30 14:56:11 > [+] Get category ID OK...
+23-07-30 14:56:11 > [+] Write blog post run...
+23-07-30 14:56:11 > [+] Get blog info run...
+23-07-30 14:56:11 > [+] Get blog info OK...
+23-07-30 14:56:12 > [+] Write blog post OK...
+23-07-30 14:56:12 > [+] Send post message run...
+23-07-30 14:56:12 > [+] Send message OK...
+23-07-30 14:56:12 > [+] Send post message OK...
+[+] Go to URL button enter...
+INFO:     54.242.162.233:62206 - "POST /webhook HTTP/1.1" 200 OK
+INFO:     185.216.140.186:48358 - "GET /ping.js HTTP/1.1" 404 Not Found
+INFO:     198.235.24.75:58956 - "GET / HTTP/1.1" 200 OK
+INFO:     205.210.31.150:50818 - "GET / HTTP/1.0" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     167.71.133.68:35690 - "GET /aaa9 HTTP/1.1" 404 Not Found
+INFO:     167.71.133.68:35696 - "GET /aab8 HTTP/1.1" 404 Not Found
+INFO:     167.71.133.68:35702 - "GET / HTTP/1.1" 200 OK
+INFO:     91.204.226.27:55951 - "GET / HTTP/1.1" 200 OK
+INFO:     103.80.134.232:51205 - "GET / HTTP/1.1" 200 OK
+INFO:     159.203.192.14:48674 - "GET / HTTP/1.1" 200 OK
+INFO:     205.210.31.175:50859 - "GET / HTTP/1.0" 200 OK
+INFO:     167.94.138.51:37258 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.138.51:48500 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+INFO:     118.193.56.146:45966 - "GET / HTTP/1.1" 200 OK
+INFO:     118.193.56.146:50426 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     118.193.56.146:50728 - "GET /robots.txt HTTP/1.1" 404 Not Found
+INFO:     118.193.56.146:51044 - "GET /sitemap.xml HTTP/1.1" 404 Not Found
+23-07-31 08:30:00 > [+] Get category ID run...
+23-07-31 08:30:00 > [+] Get blog info run...
+23-07-31 08:30:00 > [+] Get blog info OK...
+23-07-31 08:30:00 > [+] Get category ID OK...
+23-07-31 08:30:00 > [+] Send input message...
+23-07-31 08:30:01 > [+] Send message OK...
+[+] Theme select request enter...
+INFO:     54.89.65.99:42730 - "POST /webhook HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+건강
+23-07-31 08:30:17 > [+] Make title run...
+23-07-31 08:30:22 > token num: 18, token price: 0.0432
+23-07-31 08:30:22 > [+] Make title Ok...
+INFO:     205.210.31.31:57620 - "GET / HTTP/1.1" 200 OK
+INFO:     185.216.140.186:50366 - "GET /ping.js HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     5.189.132.78:40260 - "GET / HTTP/1.1" 200 OK
+INFO:     5.189.132.78:40378 - "GET /gui HTTP/1.1" 404 Not Found
+INFO:     216.218.206.97:42735 - "GET / HTTP/1.1" 200 OK
+INFO:     216.218.206.113:56191 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     216.218.206.81:9615 - "GET /?format=json HTTP/1.1" 200 OK
+WARNING:  Unsupported upgrade request.
+WARNING:  No supported WebSocket library detected. Please use "pip install 'uvicorn[standard]'", or install 'websockets' or 'wsproto' manually.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     185.216.140.186:37522 - "GET /ping.js HTTP/1.1" 404 Not Found
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+[+] Theme select request enter...
+INFO:     52.87.164.14:25302 - "POST /webhook HTTP/1.1" 200 OK
+[+] Theme select request enter...
+INFO:     54.90.130.210:25712 - "POST /webhook HTTP/1.1" 200 OK
+[+] Input data enter...
+INFO:     54.87.157.57:50862 - "POST /webhook HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.145.59:50974 - "GET / HTTP/1.1" 200 OK
+INFO:     167.94.145.59:60184 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+INFO:     167.94.145.59:60254 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     162.243.139.15:50030 - "GET / HTTP/1.1" 200 OK
+INFO:     198.235.24.251:57930 - "GET / HTTP/1.1" 200 OK
+INFO:     205.210.31.204:59936 - "GET / HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+23-08-01 08:30:00 > [+] Get category title OK...
+23-08-01 08:30:00 > [+] Send approval message...
+23-08-01 08:30:01 > [+] Send message OK...
+[+] Approve button enter...
+INFO:     54.197.31.127:51898 - "POST /webhook HTTP/1.1" 200 OK
+WARNING:  Invalid HTTP request received.
+23-08-01 08:30:13 > [+] User approve to post...
+23-08-01 08:30:13 > [+] Make content run...
+23-08-01 08:30:42 > token num: 30, token price: 0.072
+23-08-01 08:30:42 > [+] Make content Ok...
+23-08-01 08:30:42 > [+] Get category ID run...
+23-08-01 08:30:42 > [+] Get blog info run...
+23-08-01 08:30:42 > [+] Get blog info OK...
+23-08-01 08:30:42 > [+] Get category ID OK...
+23-08-01 08:30:42 > [+] Write blog post run...
+23-08-01 08:30:42 > [+] Get blog info run...
+23-08-01 08:30:42 > [+] Get blog info OK...
+23-08-01 08:30:43 > [+] Write blog post OK...
+23-08-01 08:30:43 > [+] Send post message run...
+23-08-01 08:30:43 > [+] Send message OK...
+23-08-01 08:30:43 > [+] Send post message OK...
+INFO:     64.62.197.181:18053 - "GET / HTTP/1.1" 200 OK
+INFO:     64.62.197.180:27987 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     64.62.197.180:52829 - "GET /?format=json HTTP/1.1" 200 OK
+WARNING:  Unsupported upgrade request.
+WARNING:  No supported WebSocket library detected. Please use "pip install 'uvicorn[standard]'", or install 'websockets' or 'wsproto' manually.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+INFO:     198.235.24.255:56819 - "GET / HTTP/1.0" 200 OK
+INFO:     198.235.24.44:62284 - "GET / HTTP/1.1" 200 OK
+INFO:     205.210.31.45:60602 - "GET / HTTP/1.1" 200 OK
+INFO:     188.166.78.146:37096 - "GET / HTTP/1.1" 200 OK
+INFO:     89.248.164.165:49152 - "GET /ping.js HTTP/1.1" 404 Not Found
+INFO:     87.236.176.100:36077 - "GET / HTTP/1.1" 200 OK
+INFO:     64.226.127.60:35552 - "GET / HTTP/1.1" 200 OK
+INFO:     64.226.127.60:35554 - "GET /gui HTTP/1.1" 404 Not Found
+[+] Web site run...
+[+] ChatBlog Agent run...
+[+] Scheduler run...
+INFO:     Started server process [77875]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8888 (Press CTRL+C to quit)
+[+] Web site run...
+[+] ChatBlog Agent run...
+[+] Scheduler run...
+INFO:     Started server process [420291]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8888 (Press CTRL+C to quit)
