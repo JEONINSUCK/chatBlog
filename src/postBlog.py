@@ -14,13 +14,6 @@ DEBUG_ENABLE = True
 with open("config.json", "r", encoding="utf-8-sig") as f:
     config = json.load(f)
 
-# # set tistory config info
-# tistory_code = config['AUTH']['TISTORY_CODE']
-# tistory_app_id = config['AUTH']['TISTORY_APP_ID']
-# tistory_secret_key = config['AUTH']['TISTORY_SECRET_KEY']
-# tistory_url = config['AUTH']['TISTORY_URL']
-# tistory_get_url = config['AUTH']['TISTORY_GET_URL']
-
 
 class postBlog:
     def __init__(self) -> None:
