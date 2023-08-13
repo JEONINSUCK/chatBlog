@@ -351,7 +351,7 @@ def scheduler_th():
     schedule.every().day.at("08:30").do(scheduler_timeout)
     while(True):
         schedule.run_pending()
-        time.sleep(1)
+        time.sleep(10)
 
 if __name__ == '__main__':
     chat_blog = chatBlog()

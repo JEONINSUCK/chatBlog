@@ -16,13 +16,19 @@ DEFUALT_TOKEN = 1000
 
 # ASSIST_QUERY_BASE = "위 글은 블로그 게시글이야. 게시글이 입력되면 부족한 부분을 구체적으로 피드백 해줘."
 ASSIST_QUERY_BASE = "위 블로그 게시글에서 부족한 부분을 구체적으로 피드백 해줘. 100자 이하로 말해줘."
-CATEGORY_QUERY_BASE = "{0}에 관한 블로그 게시글을 작성할거야. {1}을 주제로한 블로그 제목을 15글자 이하로 5가지 추천해 줘. 전문적이면서 호기심을 자극하는 제목으로 부탁해. 20대 상냥한 여자 말투로 말해줘. 이모티콘도 추가해줘."
+CATEGORY_QUERY_BASE = "{0}에 관한 블로그 게시글을 작성할거야. \
+                    {1}을 주제로한 블로그 제목을 15글자 이하로 5가지 추천해 줘. \
+                    전문적이면서 호기심을 자극하는 제목으로 부탁해. \
+                    20대 상냥한 여자 말투로 말해줘. \
+                    이모티콘도 추가해줘."
 CONTENT_QUERY_BASE = "{0}에 관한 블로그 게시글을 작성할거야. {1}을 주제로한 전문적인 블로그 글을 작성해 줘. 20대 친근한 여성의 말투로 대답해 줘. 리스트 형식으로 작성해 줘"
 SYSTEM_QUERY_BASE = "{0}에 관한 전문 블로거야."
 SYSTEM_CONTENT_BASE = "You are a helpful assistant who is good at detailing."
 # ADV_QUERY_BASE = "다음 입력될 내용은 블로그 게시글과 피드백이야. 피드백 받은 것을 바탕으로 글을 다시 작성해줘."
-ADV_QUERY_BASE = "위에서 피드백 받은 것을 바탕으로 블로그 게시글을 다시 작성해줘."
-
+ADV_QUERY_BASE = "위에서 피드백 받은 것을 바탕으로 구글 SEO에 맞게 글을 다시 작성해줘. \
+                글자수는 3000자 내외로 써줘. \
+                마지막에 결론도 도출해줘. \
+                게시글에 필요하지 않은 말들은 빼줘."
 # load config.json data
 with open("./config.json", "r", encoding="utf-8-sig") as f:
     config = json.load(f)
@@ -210,6 +216,22 @@ class makeContent:
                 debugPrint("makeContent funcing exception: {0}".format(e))
                 return ERRORCODE._QUERY_FAIL
 
+            try:
+                # remove unnecessary string
+                sp_datas = adv_answer['response'].split('\n')
+                rm_datas = [query_string, "피드백", "SEO", "3000자", "다시 작성"]
+            
+                for sp_data in sp_datas[:3]:
+                    for rm_data in rm_datas:
+                        if sp_data.find(rm_data) != -1:
+                            sp_datas.remove(sp_data)
+                adv_answer = "".join(sp_datas)
+            except Exception as e:
+                debugPrint("remove unnecessary string ERR")
+                debugPrint(e)
+                print(adv_answer)
+
+
             # write answer to file
             with open(file_path, 'w') as f:
                 f.write(adv_answer['response'])
@@ -364,7 +386,7 @@ if __name__ == '__main__':
     test_tokenTool = tokenUtility()    
     
     test_makeContent.setTheme("헬스")
-    # test_makeContent.makeCategory()
+    # # test_makeContent.makeCategory()
     title = test_makeContent.getTitleSrc("헬스")
     print(title)
     test_makeContent.makeContent(title)
@@ -372,7 +394,4 @@ if __name__ == '__main__':
     #     if test_makeContent.getTitleSrc(theme) == ERRORCODE._TITLE_USED:
     #         print("not exist using title")
 
-    # print(test_makeContent.querySend("블로그 글을 잘쓰는 법 5가지를 나열해 줘. 각각 15글자 이하로 간결하게 알려 줘.", system="전문적인 지식을 전달하는 것"))
-    # print(test_makeContent.querySend("'블로그 글을 잘쓰는 법'에 대해 구글에 검색하고 상위 5개 페이지 내용을 50자 이하로 요약해 줘.", system="전문적인 지식을 전달하는 것"))
-    
     

@@ -5,12 +5,8 @@ try:
 except Exception as e:
     from src.common import *
     from src.postBlog import postBlog
-
-
 import json
 import requests
-
-
 
 # load config.json data
 with open("config.json", "r", encoding="utf-8-sig") as f:
