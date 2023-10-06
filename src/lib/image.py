@@ -6,9 +6,8 @@ from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler, Auto
 print("Torch version:",torch.__version__)
 print("Is CUDA enabled?",torch.cuda.is_available())
 
-model_id = "stabilityai/stable-diffusion-2-1"
 # model_id = "runwayml/stable-diffusion-v1-5"
-
+model_id = "stabilityai/stable-diffusion-2-1"
 
 # Use the DPMSolverMultistepScheduler (DPM-Solver++) scheduler here instead
 # https://huggingface.co/docs/diffusers/api/pipelines/stable_diffusion/text2img
@@ -16,21 +15,21 @@ pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float
 pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
 pipe = pipe.to("cuda")
 
-prompt = "a photo of an astronaut riding a horse on mars"
+prompt = "protect server"
 image = pipe(prompt).images[0]
     
 image.save("result.png")
 
-pipe.save_pretrained("runwayml/stable-diffusion-v1-5", variant="fp16")
+# pipe.save_pretrained("model_id", variant="fp16")
 # 👍 this works
 # stable_diffusion = DiffusionPipeline.from_pretrained(
 #     "./stable-diffusion-v1-5", variant="fp16", torch_dtype=torch.float16, use_safetensors=True
 # )
 
-pipeline = AutoPipelineForText2Image.from_pretrained(
-    "runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16, use_safetensors=True
-).to("cuda")
-prompt = "peasant and dragon combat, wood cutting style, viking era, bevel with rune"
+# pipeline = AutoPipelineForText2Image.from_pretrained(
+#     "runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16, use_safetensors=True
+# ).to("cuda")
+# prompt = "peasant and dragon combat, wood cutting style, viking era, bevel with rune"
 
-image = pipeline(prompt, num_inference_steps=25).images[0]
-image.save("result1.png")
+# image = pipeline(prompt, num_inference_steps=25).images[0]
+# image.save("result1.png")
