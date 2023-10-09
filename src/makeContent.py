@@ -217,19 +217,22 @@ class makeContent:
                 return ERRORCODE._QUERY_FAIL
 
             try:
+                print(adv_answer['response'])
                 # remove unnecessary string
                 sp_datas = adv_answer['response'].split('\n')
-                rm_datas = [query_string, "피드백", "SEO", "3000자", "다시 작성"]
+                rm_datas = ["제목:", "피드백", "SEO", "3000자", "다시 작성"]
             
-                for sp_data in sp_datas[:3]:
+                for sp_data in sp_datas[:5]:
                     for rm_data in rm_datas:
                         if sp_data.find(rm_data) != -1:
-                            sp_datas.remove(sp_data)
-                adv_answer = "".join(sp_datas)
+                            if sp_data in sp_datas:
+                                print("[+] Unnecessary string removed...")
+                                sp_datas.remove(sp_data)
+                    
+                adv_answer['response'] = "\n".join(sp_datas)
             except Exception as e:
                 debugPrint("remove unnecessary string ERR")
                 debugPrint(e)
-                print(adv_answer)
 
 
             # write answer to file
@@ -394,4 +397,25 @@ if __name__ == '__main__':
     #     if test_makeContent.getTitleSrc(theme) == ERRORCODE._TITLE_USED:
     #         print("not exist using title")
 
-    
+    # file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], title])
+    # with open(file_path, 'r') as f:
+    #     data = f.read() 
+
+
+    #     sp_datas = data.split("\n")
+    #     rm_datas = ["제목:", "피드백", "SEO", "3000자", "다시 작성"]
+    #     print(title[:-5])
+        
+    #     for sp_data in sp_datas[:5]:
+    #         for rm_data in rm_datas:
+    #             if sp_data.find(rm_data) != -1:
+    #                 print("find 1")
+    #                 if sp_data in sp_datas:
+    #                     print("find")
+    #                     sp_datas.remove(sp_data)
+    #                 else:
+    #                     print("nop")
+    #                 # sp_datas.remove(sp_data)
+    #     result= "".join(sp_datas)
+
+    #     print(result)
