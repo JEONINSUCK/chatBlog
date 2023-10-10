@@ -11,11 +11,14 @@ model_id = "stabilityai/stable-diffusion-2-1"
 
 # Use the DPMSolverMultistepScheduler (DPM-Solver++) scheduler here instead
 # https://huggingface.co/docs/diffusers/api/pipelines/stable_diffusion/text2img
-pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float32)
+pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
 pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
 pipe = pipe.to("cuda")
 
-prompt = "protect server"
+pipe.enable_attention_slicing()
+
+prompt = "a horse running through a field"
+# image = pipe(prompt, height=704, width=704).images[0]
 image = pipe(prompt).images[0]
     
 image.save("result.png")
