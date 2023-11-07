@@ -22,12 +22,13 @@ import uvicorn
 import schedule
 import time
 
-DEBUG_ENABLE = True
 
 APP_NAME = "webhook-listener"
 WEBHOOK_SECRET = "slackers"
 
 chatblog_timeout = False
+
+logger = Mylogger()
 
 evt = threading.Event()
 input_que = Queue()
@@ -90,7 +91,7 @@ class webTool:
                     return ERRORCODE._BODY_CHK_FAIL
             
         except Exception as err:
-            print(f"bodyCheck error: {err}")
+            logger.error(f"bodyCheck error: {err}")
 
     def getMsgTheme(self, body: dict):
         return body['message']['attachments'][0]['blocks'][1]['fields'][0]['text'].replace('*Theme:*',"")
@@ -142,7 +143,7 @@ class chatBlog:
             if get_title_src == ERRORCODE._TITLE_USED:          # do not have usable title
                     continue
             elif get_title_src == ERRORCODE._THEME_NOT_EXIST:
-                print("[-] Theme file not exist...")
+                logger.info("[-] Theme file not exist...")
             else:
                 self.set_theme(theme)
                 return get_title_src
@@ -157,13 +158,13 @@ class chatBlog:
         evt.clear()
         if input_que.empty() == False:
             theme_name = input_que.get()
-            print(theme_name)
+            logger.info(theme_name)
         else:
-            print("[-] Input Queue is empty...")
+            logger.info("[-] Input Queue is empty...")
         
         self.gpt_bot.setTheme(theme_name)
         if self.gpt_bot.makeCategory() == ERRORCODE._SUCCESS:
-            print(f"[+] Make 5 titles about {theme_name} complete!!")
+            logger.info(f"[+] Make 5 titles about {theme_name} complete!!")
 
     def button_request_proc(self):
         self.slack_bot.sendApproveMsg(self.get_theme(), self.title)
@@ -173,15 +174,15 @@ class chatBlog:
         if button_que.empty() == False:
             bt_type = button_que.get()
             if bt_type == config['CONF']['APPROVE_ACT_VAL']:
-                debugPrint("[+] User approve to post...")
+                logger.info("[+] User approve to post...")
                 return ERRORCODE._BT_APPROVE
             elif bt_type == config['CONF']['DENY_ACT_VAL']:
-                debugPrint("[+] User deny to post...")
+                logger.info("[+] User deny to post...")
                 return ERRORCODE._BT_DENY
             else:
                 return ERRORCODE._BT_INVALID
         else:
-            print("[-] Button Queue is empty...")
+            logger.info("[-] Button Queue is empty...")
 
     def post_blog(self):
         try:
@@ -202,15 +203,15 @@ class chatBlog:
                                                             self.title,
                                                             cate_id[self.theme])
                     else:
-                       debugPrint("[-] Not exist category id...")
+                       logger.info("[-] Not exist category id...")
                 else:
-                    debugPrint("[-] Category id is not dict")
+                    logger.info("[-] Category id is not dict")
         except Exception as e:
-            print("post_blog funcing exception: {0}".format(e)) 
+            logger.error("post_blog funcing exception: {0}".format(e)) 
                     
 
     def run(self):
-        print("[+] ChatBlog Agent run...")
+        logger.info("[+] ChatBlog Agent run...")
         global chatblog_timeout
         while(True):
             if chatblog_timeout:              # slack slash command or timer timeout
@@ -282,55 +283,55 @@ async def webhook(request: Request):
             if  bchk == ERRORCODE._BODY_ACT_BUTTON:
                 act_val = web_t.getActVal(body)
                 if act_val == config['CONF']['APPROVE_ACT_VAL']:
-                    print("[+] Approve button enter...")
+                    logger.info("[+] Approve button enter...")
                     try:
                         button_que.put(act_val)
                     except Exception as e:
-                        print(e)
+                        logger.error(e)
                     evt.set()
                 elif act_val == config['CONF']['DENY_ACT_VAL']:
-                    print("[+] Deny button enter...")
+                    logger.info("[+] Deny button enter...")
                     try:
                         button_que.put(act_val)
                     except Exception as e:
-                        print(e)
+                        logger.error(e)
                     evt.set()
                 elif act_val == config['CONF']['URL_ACT_VAL']:
-                    print("[+] Go to URL button enter...")
+                    logger.info("[+] Go to URL button enter...")
                 else:
-                    print("action value not found")
+                    logger.info("action value not found")
 
                 return {"status": "OK"}
             elif bchk == ERRORCODE._BODY_ACT_INPUT:
-                print("[+] Input data enter...")
-                # print(web_t.getActVal(body))
+                logger.info("[+] Input data enter...")
+                # logger.info(web_t.getActVal(body))
                 try:
                     input_que.put(web_t.getActVal(body))
                 except Exception as e:
-                    print(e)
+                    logger.error(e)
                 evt.set()
 
                 return {"status": "OK"}
             elif bchk == ERRORCODE._BODY_CHK_CMD:
-                print("[+] Slash command enter...")
+                logger.info("[+] Slash command enter...")
                 try:
                     slash_que.put(body.get('text'))
                 except Exception as e:
-                    print(e)
+                    logger.error(e)
                 # evt.set()
                 chatblog_timeout = True
 
                 return {"status": "OK"}
             elif bchk == ERRORCODE._BODY_ACT_SELECT:
-                print("[+] Theme select request enter...")
-                # print(web_t.getSelVal(body))
+                logger.info("[+] Theme select request enter...")
+                # logger.info(web_t.getSelVal(body))
                 try:
                     input_que.put(web_t.getSelVal(body))
                 except Exception as e:
-                    print(e)
+                    logger.error(e)
                 evt.set()
         except Exception as e:
-            print(body)
+            logger.error(body)
             return {"status": "body structure error"}
         
 
@@ -339,11 +340,11 @@ async def webhook(request: Request):
         return {"status": "ERR"}
 
 def web_th():
-    print("[+] Web site run...")
+    logger.info("[+] Web site run...")
     uvicorn.run(app, host="0.0.0.0", port=8888)
 
 def scheduler_th():
-    print("[+] Scheduler run...")
+    logger.info("[+] Scheduler run...")
     def scheduler_timeout():
         global chatblog_timeout
         chatblog_timeout = True
@@ -355,14 +356,6 @@ def scheduler_th():
 
 if __name__ == '__main__':
     chat_blog = chatBlog()
-    
-    # log module init
-    logger = logging.getLogger(APP_NAME)
-    logger.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s: %(message)s")
-    file_logging = logging.FileHandler(f"{APP_NAME}.log")
-    file_logging.setFormatter(formatter)
-    logger.addHandler(file_logging)
     
     th_web = threading.Thread(target=web_th)
     th_chat_blog = threading.Thread(target=chat_blog.run)

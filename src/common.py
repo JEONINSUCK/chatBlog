@@ -1,10 +1,38 @@
 from datetime import datetime
 import enum
+import logging
 
+class Mylogger:
+    def __init__(self) -> None:
+        self.log = logging.getLogger('cnu_log')
+        self.formatter = logging.Formatter('[%(asctime)s][%(levelname)s][%(filename)s:%(lineno)s] >> %(message)s')
+        self.streamHandler = logging.StreamHandler()
+        self.fileHandler = logging.FileHandler('./history.log')
+        self.streamHandler.setFormatter(self.formatter)
+        self.fileHandler.setFormatter(self.formatter)
 
-DEBUG_ENABLE = True
+    def info(self, data):
+        self.log.handlers.clear()
+        self.log.addHandler(self.streamHandler)
+        self.log.addHandler(self.fileHandler)
+        self.log.setLevel(level=logging.INFO)
 
+        self.log.info(data)
 
+    def debug(self, data):
+        self.log.handlers.clear()
+        self.log.addHandler(self.fileHandler)
+        self.log.setLevel(level=logging.DEBUG)
+        
+        self.log.debug(data)
+
+    def error(self, data):
+        self.log.handlers.clear()
+        self.log.addHandler(self.streamHandler)
+        self.log.addHandler(self.fileHandler)
+        self.log.setLevel(level=logging.INFO)
+
+        self.log.error(data)
 
 class ERRORCODE(enum.Enum):
     _SUCCESS = 1
@@ -33,12 +61,9 @@ class ERRORCODE(enum.Enum):
     _BODY_ACT_SELECT = 24
     _TITLE_DUPLI_ERR = 25
     _PARAM_ERR = 26
-    
-def debugPrint(data):
-    if DEBUG_ENABLE:
-        # get date & time
-        now = datetime.now()
-        today = now.date().strftime("%y-%m-%d")
-        today_time = now.time().strftime("%H:%M:%S")
-        print("{0} {1} > ".format(today, today_time), end="")
-        print(data)
+
+
+if __name__ == '__main__':
+    Mylogger().info('info test')
+    Mylogger().debug('debug test')
+    Mylogger().error('error test')

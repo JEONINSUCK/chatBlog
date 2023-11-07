@@ -94,11 +94,11 @@ tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.1
 tensorboardX==2.5.1
 tensorflow==2.11.0
-tensorflow-datasets==4.9.2
+tensorflow-datasets==4.8.3
 tensorflow-estimator==2.11.0
 tensorflow-gpu==2.11.0
 tensorflow-io-gcs-filesystem==0.28.0
-tensorflow-metadata==1.14.0
+tensorflow-metadata==1.13.0
 tensorlayerx @ git+https://github.com/tensorlayer/tensorlayerx.git@d077c1b2c9439e9065952817a66c2cc7e7bf1667
 termcolor==2.1.1
 threadpoolctl==3.1.0

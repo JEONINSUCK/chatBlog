@@ -8,6 +8,8 @@ except Exception as e:
 import json
 import requests
 
+logger = Mylogger()
+
 # load config.json data
 with open("config.json", "r", encoding="utf-8-sig") as f:
     config = json.load(f)
@@ -39,19 +41,19 @@ class Bot:
                                 )
 
             if response.status_code == 200:
-                debugPrint("[+] Send message OK...")
+                logger.info("[+] Post resonse 200...")
             else:
-                debugPrint("[+] Response ERR: {0}...".format(response.status_code))
+                logger.info("[-] Response ERR: {0}...".format(response.status_code))
                 return ERRORCODE._SEND_MSG_FAIL
 
         except Exception as e:
-            debugPrint("[-] Main Send function FAIL...")
-            debugPrint("sendMsg funcing exception: {0}".format(e))
+            logger.error("[-] Main Send function FAIL...")
+            logger.error("sendMsg funcing exception: {0}".format(e))
 
 
     def sendApproveMsg(self, theme, title):
         try:
-            debugPrint("[+] Send approval message...")
+            logger.info("[+] Send approval message run...")
             # load approval message form
             with open("src/message_form/approval_msg.json", "rt") as msg_f:
                 approval_msg = json.load(msg_f)
@@ -68,14 +70,15 @@ class Bot:
                     approval_msg['attachments'][0]['blocks'][1]['fields'][i]['text'].replace("[replace]", data_categorys[i])
 
                 self.sendMsg(approval_msg)
+                logger.info("[+] Send approval OK...")
         except Exception as e:
-            debugPrint("[-] Send approval message FAIL...")
-            debugPrint("sendApproveMsg funcing exception: {0}".format(e))
+            logger.error("[-] Send approval message FAIL...")
+            logger.error("sendApproveMsg funcing exception: {0}".format(e))
 
 
     def sendPostMsg(self,theme, title, token, price, url):
         try:
-            debugPrint("[+] Send post message run...")
+            logger.info("[+] Send post message run...")
             result_post_msg = ""
             # load approval message form
             with open("src/message_form/post_msg.json", "rt") as msg_f:
@@ -92,15 +95,15 @@ class Bot:
                 post_msg['attachments'][0]['blocks'][6]['elements'][0]['url'] = url
 
                 self.sendMsg(post_msg)
-            debugPrint("[+] Send post message OK...")
+            logger.info("[+] Send post message OK...")
         except Exception as e:
-            debugPrint("[-] Send post message FAIL...")
-            debugPrint("sendPostMsg funcing exception: {0}".format(e))
+            logger.error("[-] Send post message FAIL...")
+            logger.error("sendPostMsg funcing exception: {0}".format(e))
 
 
     def sendInputMsg(self, theme_list=None):
         try:
-            debugPrint("[+] Send input message...")
+            logger.info("[+] Send input message...")
             # load approval message form
             with open("src/message_form/input_msg.json", "rt") as msg_f:
                 input_msg = json.load(msg_f)
@@ -122,20 +125,23 @@ class Bot:
                         field_data.append(field_form)
                                 
                     input_msg['blocks'][3]['accessory']['options'] = field_data
-
+                    logger.info("[+] Send input OK...")
+                logger.info("[-] Theme list empty...")
                 self.sendMsg(input_msg)
+
         except Exception as e:
-            debugPrint("[-] Send input message FAIL...")
-            debugPrint("sendInputMsg funcing exception: {0}".format(e))
+            logger.error("[-] Send input message FAIL...")
+            logger.error("sendInputMsg funcing exception: {0}".format(e))
 
 
     def sendButtonMsg(self):
-        debugPrint("[+] Send button message...")
+        logger.info("[+] Send button message...")
         # load approval message form
         with open("src/message_form/button_msg.json", "rt") as msg_f:
             button_msg = json.load(msg_f)
         
             self.sendMsg(button_msg)
+            logger.info("[+] Send button OK...")
 
 
 if __name__ == '__main__':

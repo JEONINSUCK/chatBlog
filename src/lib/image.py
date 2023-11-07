@@ -18,6 +18,7 @@ pipe = pipe.to("cuda")
 pipe.enable_attention_slicing()
 
 prompt = "a horse running through a field"
+# prompt = "초원을 달리는 말을 그려줘"
 # image = pipe(prompt, height=704, width=704).images[0]
 image = pipe(prompt).images[0]
     

@@ -8,7 +8,7 @@ import requests
 import json
 import os
 
-DEBUG_ENABLE = True
+logger = Mylogger()
 
 # load config.json data
 with open("config.json", "r", encoding="utf-8-sig") as f:
@@ -31,7 +31,7 @@ class postBlog:
         self.tistory_access_token = config['AUTH']['TISTORY_ACCESS_TOKEN']
         
     def listBlogPost(self, page_num):
-        debugPrint("[+] List blog post run...")
+        logger.info("[+] List blog post run...")
 
         # set url parameter
         params = {
@@ -43,15 +43,15 @@ class postBlog:
 
         res = requests.get(self.tistory_list_url, params=params)
         if res.status_code == 200:
-            debugPrint("[+] List blog post OK...")
+            logger.info("[+] List blog post OK...")
             return res.json()['tistory']['item']['posts']
         else:
-            debugPrint("[-] List blog post ERR...")
-            debugPrint(res)
+            logger.info("[-] List blog post ERR...")
+            logger.info(res)
             return ERRORCODE._REQUEST_GET_ERR   
 
     def readBlogPost(self,post_id):
-        debugPrint("[+] Read blog post run...")
+        logger.info("[+] Read blog post run...")
 
         # set url parameter
         params = {
@@ -63,15 +63,15 @@ class postBlog:
 
         res = requests.get(self.tistory_get_url, params=params)
         if res.status_code == 200:
-            debugPrint("[+] Read blog post OK...")
+            logger.info("[+] Read blog post OK...")
             return res.json()['tistory']['item']['content']
         else:
-            debugPrint("[-] Read blog post ERR...")
-            debugPrint(res)
+            logger.info("[-] Read blog post ERR...")
+            logger.info(res)
             return ERRORCODE._REQUEST_GET_ERR   
 
     def writeBlogPost(self, contents, title, category, visibility=2, acceptComment=1):
-        debugPrint("[+] Write blog post run...")
+        logger.info("[+] Write blog post run...")
 
         # set url parameter
         params = {
@@ -88,17 +88,17 @@ class postBlog:
         # request post url
         res = requests.post(self.tistory_post_url, data=params)
         if res.status_code == 200:
-            debugPrint("[+] Write blog post OK...")
+            logger.info("[+] Write blog post OK...")
             return res.json()['tistory']['url']
         else:
-            debugPrint("[-] Write blog post ERR...")
-            debugPrint(res)
+            logger.info("[-] Write blog post ERR...")
+            logger.info(res)
             return ERRORCODE._REQUEST_GET_ERR
     
     # need to update 'TISTORY_CODE' value everytime
     def getAccessToken(self):
         try:
-            debugPrint("[+] Get access token run...")
+            logger.info("[+] Get access token run...")
             # set url parameter
             params = {
                 'client_id' : self.tistory_app_id,
@@ -111,19 +111,19 @@ class postBlog:
             # request get url
             res = requests.get(self.tistory_auth_url, params=params)
             if res.status_code == 200:
-                debugPrint("[+] Get access token OK...")
+                logger.info("[+] Get access token OK...")
                 return res.text.replace('access_token=','')
             else:
-                debugPrint("[-] Get request ERR...")
+                logger.info("[-] Get request ERR...")
                 return ERRORCODE._REQUEST_GET_ERR
         except Exception as e:
-            debugPrint("[-] Get access token FAIL...")
-            debugPrint("getAccessToken funcing exception: {0}".format(e))
+            logger.error("[-] Get access token FAIL...")
+            logger.error("getAccessToken funcing exception: {0}".format(e))
 
 
     def getBlogInfo(self):
         try:
-            debugPrint("[+] Get blog info run...")
+            logger.info("[+] Get blog info run...")
             # set url parameter
             params = {
                 'access_token' : self.tistory_access_token,
@@ -133,19 +133,19 @@ class postBlog:
             # request get url
             res = requests.get(self.tistory_info_url, params=params)
             if res.status_code == 200:
-                debugPrint("[+] Get blog info OK...")
+                logger.info("[+] Get blog info OK...")
                 return self.responsParse(res)
             else:
-                debugPrint("[-] Get request ERR...")
+                logger.info("[-] Get request ERR...")
                 return ERRORCODE._REQUEST_GET_ERR
         except Exception as e:
-            debugPrint("[-] Get blog info FAIL...")
-            debugPrint("getBlogInfo funcing exception: {0}".format(e))
+            logger.error("[-] Get blog info FAIL...")
+            logger.error("getBlogInfo funcing exception: {0}".format(e))
 
 
     def getCategoryID(self):
         try:
-            debugPrint("[+] Get category ID run...")
+            logger.info("[+] Get category ID run...")
             
             categorys_dict = {}
 
@@ -164,17 +164,17 @@ class postBlog:
                     for category_dict in res['categories']:
                         categorys_dict[category_dict['name']] = category_dict['id']
 
-                    debugPrint("[+] Get category ID OK...")
+                    logger.info("[+] Get category ID OK...")
                     return categorys_dict
                 else:
-                    debugPrint("[+] Category ID is not exist...")
+                    logger.info("[+] Category ID is not exist...")
                     return ERRORCODE._CATEGORY_ID_NOT_EXIST
             else:
-                debugPrint("[-] Get request ERR...")
+                logger.info("[-] Get request ERR...")
                 return ERRORCODE._REQUEST_GET_ERR
         except Exception as e:
-            debugPrint("[-] Get category ID FAIL...")
-            debugPrint("getCategoryID funcing exception: {0}".format(e))
+            logger.error("[-] Get category ID FAIL...")
+            logger.error("getCategoryID funcing exception: {0}".format(e))
 
 
     def getBlogName(self):

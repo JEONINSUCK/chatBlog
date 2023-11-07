@@ -37,10 +37,11 @@ with open("./config.json", "r", encoding="utf-8-sig") as f:
 open_ai_key = config['AUTH']['GPT3_API_KEY']
 model = config['CONF']['GPT3_MODLE']
 
-# gpt-4 model setup
+# # gpt-4 model setup
 # open_ai_key = config['AUTH']['GPT4_API_KEY']
 # model = config['CONF']['GPT4_MODLE']
 
+logger = Mylogger()
 
 class makeContent:
     def __init__(self):
@@ -107,7 +108,7 @@ class makeContent:
                     token_num += self.tokenTool.getTokenNum(querys[i])
                     token_price += self.tokenTool.calcTokenPrice(token_num)
 
-                debugPrint("token num: {0}, token price: {1}".format(token_num, token_price))
+                logger.info("token num: {0}, token price: {1}".format(token_num, token_price))
                 
                 return {"response" : conv_answer, 
                         "token" : token_num,
@@ -116,12 +117,12 @@ class makeContent:
                 return ERRORCODE._QUERY_RES_ERR
         
         except Exception as e:
-            print("querySend funcing exception: {0}".format(e))
+            logger.error("querySend funcing exception: {0}".format(e))
 
 
     def makeCategory(self):
         try:
-            debugPrint("[+] Make title run...")
+            logger.info("[+] Make title run...")
             write_string = ""
             file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['TITLES_PATH'], self.theme])
             dir_path = os.path.dirname(file_path)
@@ -134,7 +135,7 @@ class makeContent:
             try:
                 response = self.querySend([query], system=self.theme)
             except Exception as e:
-                debugPrint("[-] Query send FAIL")
+                logger.error("[-] Query send FAIL")
                 return ERRORCODE._QUERY_FAIL
             now = datetime.now()
             today = now.date().strftime("%Y-%m-%d")
@@ -163,17 +164,17 @@ class makeContent:
             with open(file_path, 'a') as f:
                 f.write(write_string)
 
-            debugPrint("[+] Make title Ok...")
+            logger.info("[+] Make title Ok...")
             return response
         
         except Exception as e:
-            debugPrint("[-] Make title FAIL...")
-            debugPrint("makeCategory funcing exception: {0}".format(e))
+            logger.error("[-] Make title FAIL...")
+            logger.error("makeCategory funcing exception: {0}".format(e))
 
 
     def makeContent(self, query_string: str):
         try:
-            debugPrint("[+] Make content run...")
+            logger.info("[+] Make content run...")
             # file check
             file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], query_string])
             dir_path = os.path.dirname(file_path)
@@ -195,13 +196,13 @@ class makeContent:
                 main_answer = self.querySend([self.query], system=SYSTEM_QUERY_BASE.format(self.theme))
                 if type(main_answer) is not dict:
                     return main_answer
-                debugPrint("[+] Main query receive OK...")
+                logger.info("[+] Main query receive OK...")
                 
                 # feedback query
                 assist_answer = self.querySend([self.query, ASSIST_QUERY_BASE], system=SYSTEM_QUERY_BASE.format(self.theme), assistant=[main_answer['response']])
                 if type(assist_answer) is not dict:
                     return assist_answer
-                debugPrint("[+] Feedback query receive OK...")
+                logger.info("[+] Feedback query receive OK...")
                 
                 # advanced query
                 querys = [self.query, ASSIST_QUERY_BASE, ADV_QUERY_BASE]
@@ -209,11 +210,11 @@ class makeContent:
                 adv_answer = self.querySend(querys=querys, system=SYSTEM_QUERY_BASE.format(self.theme), assistant=assistant)
                 if type(adv_answer) is not dict:
                     return adv_answer
-                debugPrint("[+] Advanced query receive OK...")
+                logger.info("[+] Advanced query receive OK...")
                 
             except Exception as e:
-                debugPrint("[-] Query send FAIL")
-                debugPrint("makeContent funcing exception: {0}".format(e))
+                logger.error("[-] Query send FAIL")
+                logger.error("makeContent funcing exception: {0}".format(e))
                 return ERRORCODE._QUERY_FAIL
 
             try:
@@ -231,8 +232,8 @@ class makeContent:
                     
                 adv_answer['response'] = "\n".join(sp_datas)
             except Exception as e:
-                debugPrint("remove unnecessary string ERR")
-                debugPrint(e)
+                logger.error("remove unnecessary string ERR")
+                logger.error(e)
 
 
             # write answer to file
@@ -246,20 +247,20 @@ class makeContent:
             #     f.write(adv_answer['response'])
             
 
-            debugPrint("[+] Make content Ok...")
+            logger.info("[+] Make content Ok...")
             return adv_answer
         
         except Exception as e:
-            debugPrint("[-] Make content FAIL...")
-            debugPrint("makeContent funcing exception: {0}".format(e))
+            logger.error("[-] Make content FAIL...")
+            logger.error("makeContent funcing exception: {0}".format(e))
 
     def getThemeSrc(self):
         try:
             dir_path = os.path.join(config['CONF']['MEMORY_PATH'], config['CONF']['TITLES_PATH'])
             return os.listdir(dir_path)
         except Exception as e:
-            debugPrint("[-] Get theme source FAIL")
-            debugPrint("getThemeSrc funcing exception: {0}".format(e)) 
+            logger.error("[-] Get theme source FAIL")
+            logger.error("getThemeSrc funcing exception: {0}".format(e)) 
 
     def titleStatusUpdate(self, theme):
         try:
@@ -269,11 +270,12 @@ class makeContent:
             with open(file_path, 'w') as f:
                 f.write(self.write_string)
         except Exception as e:
-            debugPrint("[-] Update title status FAIL")
-            debugPrint("titleStatusUpdate funcing exception: {0}".format(e))
+            logger.error("[-] Update title status FAIL")
+            logger.error("titleStatusUpdate funcing exception: {0}".format(e))
 
     def getTitleSrc(self, theme):
         try:
+            logger.info("[+] Get category title run...")
             write_string = ""
             first_find = True
 
@@ -281,7 +283,7 @@ class makeContent:
             file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['TITLES_PATH'], theme])
             dir_path = os.path.dirname(file_path)
             if not os.path.exists(dir_path):
-                debugPrint("[-] Category title file not exist...")
+                logger.info("[-] Category title file not exist...")
                 return ERRORCODE._THEME_NOT_EXIST
             else:
                 # used category title check
@@ -302,12 +304,13 @@ class makeContent:
                     
                 self.write_string = write_string
 
-                debugPrint("[+] Get category title OK...")
+                logger.info(category_title)
+                logger.info("[+] Get category title OK...")
                 return category_title
             
         except Exception as e:
-            debugPrint("[-] Get category title FAIL")
-            debugPrint("getTitleSrc funcing exception: {0}".format(e))                
+            logger.error("[-] Get category title FAIL")
+            logger.error("getTitleSrc funcing exception: {0}".format(e))                
 
     
     def setTheme(self, theme):
@@ -350,7 +353,7 @@ class tokenUtility:
         try:
             self.encoding_name = tiktoken.encoding_for_model(model)
         except Exception as e:
-            print("tokenUtility __init__ funcing exception: {0}".format(e))
+            logger.error("tokenUtility __init__ funcing exception: {0}".format(e))
     
     def getTokenNum(self, query_string: str) -> int:
         try:
@@ -358,7 +361,7 @@ class tokenUtility:
             self.num_tokens = len(self.token_integers)
             return self.num_tokens
         except Exception as e:
-            print("getTokenNum funcing exception: {0}".format(e))
+            logger.error("getTokenNum funcing exception: {0}".format(e))
 
     def calcTokenPrice(self, token_num : int) -> float:
         try:
@@ -377,7 +380,7 @@ class tokenUtility:
             else:
                 return -1
         except Exception as e:
-            print("calcTokenPrice funcing exception: {0}".format(e))
+            logger.error("calcTokenPrice funcing exception: {0}".format(e))
 
     def test(self):
         print(self.encoding_name)
@@ -388,9 +391,9 @@ if __name__ == '__main__':
     test_makeContent = makeContent()
     test_tokenTool = tokenUtility()    
     
-    test_makeContent.setTheme("헬스")
+    test_makeContent.setTheme("운동")
     # # test_makeContent.makeCategory()
-    title = test_makeContent.getTitleSrc("헬스")
+    title = test_makeContent.getTitleSrc("운동")
     print(title)
     test_makeContent.makeContent(title)
     # for theme in test_makeContent.getThemeSrc():
