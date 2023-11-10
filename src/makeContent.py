@@ -1,5 +1,6 @@
 from googletrans import Translator
 from datetime import datetime
+from lib.image import *
 try:
     from common import *
 except Exception as e:
@@ -176,7 +177,7 @@ class makeContent:
         try:
             logger.info("[+] Make content run...")
             # file check
-            file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], query_string])
+            file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], query_string, "post_text"])
             dir_path = os.path.dirname(file_path)
 
             # directory check
@@ -220,10 +221,10 @@ class makeContent:
             try:
                 print(adv_answer['response'])
                 # remove unnecessary string
-                sp_datas = adv_answer['response'].split('\n')
+                sp_datas = adv_answer['response'].split('\n\n')
                 rm_datas = ["제목:", "피드백", "SEO", "3000자", "다시 작성"]
             
-                for sp_data in sp_datas[:5]:
+                for sp_data in sp_datas[:4]:
                     for rm_data in rm_datas:
                         if sp_data.find(rm_data) != -1:
                             if sp_data in sp_datas:
@@ -253,6 +254,28 @@ class makeContent:
         except Exception as e:
             logger.error("[-] Make content FAIL...")
             logger.error("makeContent funcing exception: {0}".format(e))
+
+    def makeImg(self, prompt_text: list, title):
+        logger.info("[+] makeImg run...")
+        logger.info(f"[+] Torch version:{torch.__version__}")
+        logger.info(f"[+] Is CUDA enabled? {torch.cuda.is_available()}")
+        self.imgModule = makeImg()
+
+        dir_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], title])
+        
+        try:
+            for i, p_txt in enumerate(prompt_text):
+                print(p_txt)
+                p_txt = self.convModule.convEN(p_txt).text
+                print(p_txt)
+                self.imgModule.run(prompt=p_txt, path=f"{dir_path}/image_{i}")
+                logger.info(f"image_{i} save successfully")
+        except IndexError:
+            logger.error("[-] makeImg func prompt_text is empty")
+            return ERRORCODE._PARAM_ERR
+        
+        logger.info("[+] makeImg OK...")
+
 
     def getThemeSrc(self):
         try:
@@ -391,21 +414,20 @@ if __name__ == '__main__':
     test_makeContent = makeContent()
     test_tokenTool = tokenUtility()    
     
-    test_makeContent.setTheme("운동")
+    # test_makeContent.setTheme("운동")
     # # test_makeContent.makeCategory()
-    title = test_makeContent.getTitleSrc("운동")
-    print(title)
-    test_makeContent.makeContent(title)
+    title = test_makeContent.getTitleSrc("헬스")
+    # test_makeContent.makeContent(title)
     # for theme in test_makeContent.getThemeSrc():
     #     if test_makeContent.getTitleSrc(theme) == ERRORCODE._TITLE_USED:
     #         print("not exist using title")
 
-    # file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], title])
-    # with open(file_path, 'r') as f:
-    #     data = f.read() 
+    file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], title, "post_text"])
+    with open(file_path, 'r') as f:
+        data = f.read()
 
-
-    #     sp_datas = data.split("\n")
+        sp_datas = data.split("\n\n")
+        test_makeContent.makeImg(sp_datas, title=title)
     #     rm_datas = ["제목:", "피드백", "SEO", "3000자", "다시 작성"]
     #     print(title[:-5])
         

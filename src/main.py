@@ -187,7 +187,7 @@ class chatBlog:
     def post_blog(self):
         try:
             blog_contents = ""
-            file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], self.title])
+            file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], self.title, "post_text"])
             with open(file_path, 'r') as con_f:
                 for line in con_f.readlines():
                     if line.find("제목") != -1:             # title line remove
