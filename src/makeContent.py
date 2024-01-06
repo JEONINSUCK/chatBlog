@@ -1,19 +1,18 @@
-from googletrans import Translator
 from datetime import datetime
-from lib.image import *
+from requests.exceptions import ConnectionError
+# from lib.image import *
 try:
     from common import *
 except Exception as e:
     from src.common import *
 
 import openai
-import tiktoken
 import json
 import os
 import re
+import time
 
-EXCHANGE_RATE = 1200
-DEFUALT_TOKEN = 1000
+# from sumy.summarizers.lex_rank import LexRankSummarizer
 
 # ASSIST_QUERY_BASE = "위 글은 블로그 게시글이야. 게시글이 입력되면 부족한 부분을 구체적으로 피드백 해줘."
 ASSIST_QUERY_BASE = "위 블로그 게시글에서 부족한 부분을 구체적으로 피드백 해줘. 100자 이하로 말해줘."
@@ -22,14 +21,16 @@ CATEGORY_QUERY_BASE = "{0}에 관한 블로그 게시글을 작성할거야. \
                     전문적이면서 호기심을 자극하는 제목으로 부탁해. \
                     20대 상냥한 여자 말투로 말해줘. \
                     이모티콘도 추가해줘."
-CONTENT_QUERY_BASE = "{0}에 관한 블로그 게시글을 작성할거야. {1}을 주제로한 전문적인 블로그 글을 작성해 줘. 20대 친근한 여성의 말투로 대답해 줘. 리스트 형식으로 작성해 줘"
+CONTENT_QUERY_BASE = "{0}에 관한 블로그 게시글을 작성할거야. {1}을 주제로한 전문적인 블로그 글을 작성해 줘. 20대 친근한 여성의 말투로 대답해 줘. 리스트 형식으로 작성해 줘. "
 SYSTEM_QUERY_BASE = "{0}에 관한 전문 블로거야."
 SYSTEM_CONTENT_BASE = "You are a helpful assistant who is good at detailing."
 # ADV_QUERY_BASE = "다음 입력될 내용은 블로그 게시글과 피드백이야. 피드백 받은 것을 바탕으로 글을 다시 작성해줘."
 ADV_QUERY_BASE = "위에서 피드백 받은 것을 바탕으로 구글 SEO에 맞게 글을 다시 작성해줘. \
+                문단 마다 부제목도 붙여줘. \
                 글자수는 3000자 내외로 써줘. \
                 마지막에 결론도 도출해줘. \
                 게시글에 필요하지 않은 말들은 빼줘."
+SUMMARIZE_SENTENSE= "위 글을 20자 이하로 요약해줘."
 # load config.json data
 with open("./config.json", "r", encoding="utf-8-sig") as f:
     config = json.load(f)
@@ -73,12 +74,11 @@ class makeContent:
                     {
                         "role": "system",
                         "content": system_content
-                    },
-                    {
-                        "role": "user",
-                        "content": querys[0]
-                    },
+                    }
                 ]
+                for query in querys:
+                    messages.append({"role": "user", "content": query})
+
             else:
                 # conv_assistant = self.convModule.convEN(assistant).text
                 if len(querys) == (len(assistant)+1):
@@ -90,12 +90,18 @@ class makeContent:
                 else:
                     return ERRORCODE._PARAM_ERR
 
+            start_time = time.time()
             # query to chatGPT model
-            response = openai.ChatCompletion.create(
-                model = model,
-                messages = messages,
-                temperature = 0.5
-            )
+            try:
+                response = openai.ChatCompletion.create(
+                    model = model,
+                    messages = messages,
+                    # temperature = 0.3
+                    request_timeout=180
+                )
+            except ConnectionError:
+                logger.error(e)
+            end_time = time.time()
 
             if 'choices' in response:
                 # parse answer and translate
@@ -109,7 +115,7 @@ class makeContent:
                     token_num += self.tokenTool.getTokenNum(querys[i])
                     token_price += self.tokenTool.calcTokenPrice(token_num)
 
-                logger.info("token num: {0}, token price: {1}".format(token_num, token_price))
+                logger.info("token num: {0}, token price: {1}, time: {2}".format(token_num, token_price, end_time-start_time))
                 
                 return {"response" : conv_answer, 
                         "token" : token_num,
@@ -221,10 +227,10 @@ class makeContent:
             try:
                 print(adv_answer['response'])
                 # remove unnecessary string
-                sp_datas = adv_answer['response'].split('\n\n')
+                sp_datas = adv_answer['response'].split('\n')
                 rm_datas = ["제목:", "피드백", "SEO", "3000자", "다시 작성"]
             
-                for sp_data in sp_datas[:4]:
+                for sp_data in sp_datas[:5]:
                     for rm_data in rm_datas:
                         if sp_data.find(rm_data) != -1:
                             if sp_data in sp_datas:
@@ -255,11 +261,18 @@ class makeContent:
             logger.error("[-] Make content FAIL...")
             logger.error("makeContent funcing exception: {0}".format(e))
 
+    def sumSentense(self, text):
+        assist_answer = self.querySend([text, SUMMARIZE_SENTENSE])
+        if type(assist_answer) is not dict:
+            return assist_answer
+        logger.info("[+] Summarize query receive OK...")
+        return assist_answer['response']
+
     def makeImg(self, prompt_text: list, title):
         logger.info("[+] makeImg run...")
         logger.info(f"[+] Torch version:{torch.__version__}")
         logger.info(f"[+] Is CUDA enabled? {torch.cuda.is_available()}")
-        self.imgModule = makeImg()
+        # self.imgModule = makeImg()
 
         dir_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], title])
         
@@ -334,8 +347,21 @@ class makeContent:
         except Exception as e:
             logger.error("[-] Get category title FAIL")
             logger.error("getTitleSrc funcing exception: {0}".format(e))                
-
     
+    def getSubTitle(self, contents):        
+        patten_pkg = ["^\d[.].[:]", "^\d[.].[!]", ".[!]", "^\d[.].[.]", "\d[:]","[*]+."]
+        for patten in patten_pkg:
+            re_compile = re.compile(patten)
+            if re_compile.search(contents[:10]) != None:
+                print(self.filt_hangul(contents))
+                # print(patten, contents)
+                return contents
+            else:
+                ERRORCODE._NOT_MATCH
+    
+    def filt_hangul(self, text):
+        return re.sub("\uAC00-\uD7A30", "", text)
+
     def setTheme(self, theme):
         self.theme = theme
 
@@ -357,67 +383,38 @@ class makeContent:
             print(i)
             print(model_name)
             i += 1
+    def testquery(self, query):
+        self.query = CONTENT_QUERY_BASE.format(self.theme, query) + "문단마다 부제목도 달아줘."
+
+        # main query
+        main_answer = self.querySend([self.query], system=SYSTEM_QUERY_BASE.format(self.theme))
+        if type(main_answer) is not dict:
+            return main_answer
         
-
-class translator:
-    def __init__(self) -> None:
-        self.translator = Translator()
-
-
-    def convEN(self, koData: str) -> str:
-        return self.translator.translate(koData, src='ko', dest='en')
-
-    def convKO(self, enData: str) -> str:
-        return self.translator.translate(enData, src='en', dest='ko')
+        # remove unnecessary string
+        sp_datas = main_answer['response'].split('\n\n')
+        rm_datas = ["제목:", "피드백", "SEO", "3000자", "다시 작성"]
     
-
-class tokenUtility:
-    def __init__(self):
-        try:
-            self.encoding_name = tiktoken.encoding_for_model(model)
-        except Exception as e:
-            logger.error("tokenUtility __init__ funcing exception: {0}".format(e))
-    
-    def getTokenNum(self, query_string: str) -> int:
-        try:
-            self.token_integers = self.encoding_name.encode(query_string)
-            self.num_tokens = len(self.token_integers)
-            return self.num_tokens
-        except Exception as e:
-            logger.error("getTokenNum funcing exception: {0}".format(e))
-
-    def calcTokenPrice(self, token_num : int) -> float:
-        try:
-            if model == "gpt-3.5-turbo":
-                return 0.002 / DEFUALT_TOKEN * token_num * EXCHANGE_RATE
-            elif model == "gpt-3.5-turbo-0301":
-                return 0.002 / DEFUALT_TOKEN * token_num * EXCHANGE_RATE
-            elif model == "Ada":
-                return 0.004 / DEFUALT_TOKEN * token_num * EXCHANGE_RATE
-            elif model == "Babbage":
-                return 0.005 / DEFUALT_TOKEN * token_num * EXCHANGE_RATE
-            elif model == "Curie":
-                return 0.02 / DEFUALT_TOKEN * token_num * EXCHANGE_RATE
-            elif model == "Davinci":
-                return 0.2 / DEFUALT_TOKEN * token_num * EXCHANGE_RATE
-            else:
-                return -1
-        except Exception as e:
-            logger.error("calcTokenPrice funcing exception: {0}".format(e))
-
-    def test(self):
-        print(self.encoding_name)
-
+        for sp_data in sp_datas[:4]:
+            for rm_data in rm_datas:
+                if sp_data.find(rm_data) != -1:
+                    if sp_data in sp_datas:
+                        print("[+] Unnecessary string removed...")
+                        sp_datas.remove(sp_data)
+            
+        main_answer['response'] = "\n".join(sp_datas)
+        print(main_answer['response'])
 
 
 if __name__ == '__main__':
     test_makeContent = makeContent()
     test_tokenTool = tokenUtility()    
     
-    # test_makeContent.setTheme("운동")
+    test_makeContent.setTheme("헬스")
     # # test_makeContent.makeCategory()
     title = test_makeContent.getTitleSrc("헬스")
     # test_makeContent.makeContent(title)
+    # test_makeContent.testquery(title)
     # for theme in test_makeContent.getThemeSrc():
     #     if test_makeContent.getTitleSrc(theme) == ERRORCODE._TITLE_USED:
     #         print("not exist using title")
@@ -426,8 +423,24 @@ if __name__ == '__main__':
     with open(file_path, 'r') as f:
         data = f.read()
 
-        sp_datas = data.split("\n\n")
-        test_makeContent.makeImg(sp_datas, title=title)
+        sp_datas = data.split("\n")
+        for sp_data in sp_datas:
+            if sp_data != '':
+                test_makeContent.getSubTitle(sp_data) 
+    #     summarizer_lex = LexRankSummarizer()
+
+    #     # Summarize using sumy LexRank
+    #     summary= summarizer_lex(sp_datas[1], 2)
+    #     lex_summary=""
+    #     for sentence in summary:
+    #         lex_summary += str(sentence)
+    #     print(lex_summary)
+
+        # test_makeContent.makeImg(sp_datas, title=title)
+
+        # for sp_data in sp_datas[1:]:
+        #     print(sp_data)
+        #     print(summarize(sp_data))
     #     rm_datas = ["제목:", "피드백", "SEO", "3000자", "다시 작성"]
     #     print(title[:-5])
         
@@ -442,5 +455,4 @@ if __name__ == '__main__':
     #                     print("nop")
     #                 # sp_datas.remove(sp_data)
     #     result= "".join(sp_datas)
-
     #     print(result)

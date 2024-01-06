@@ -1,6 +1,7 @@
 import torch
 import sys, os
 from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler, AutoPipelineForText2Image
+from xformers.ops import MemoryEfficientAttentionFlashAttentionOp
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))   # go to mother directory
 from common import *
@@ -21,14 +22,16 @@ class makeImg:
         # https://huggingface.co/docs/diffusers/api/pipelines/stable_diffusion/text2img
         self.pipe.scheduler = DPMSolverMultistepScheduler.from_config(self.pipe.scheduler.config)
         self.pipe = self.pipe.to("cuda")       # use gpu
-        self.pipe.enable_attention_slicing()  # reduce virtual gpu ram
+        self.pipe.enable_xformers_memory_efficient_attention(attention_op=MemoryEfficientAttentionFlashAttentionOp)
+        self.pipe.vae.enable_xformers_memory_efficient_attention(attention_op=None)
+        # self.pipe.enable_attention_slicing()  # reduce virtual gpu ram
 
     def run(self, prompt, path):
         logger.debug("[+] makeImg run...")
         self.prompt = prompt
 
         # image = pipe(prompt, height=704, width=704).images[0]
-        self.image = self.pipe(self.prompt).images[0]
+        self.image = self.pipe(self.prompt, num_inference_steps=60, guidance_scale=7.5).images[0]
             
         self.image.save(f"{path}.png")
         logger.debug("[+] makeImg OK...")
@@ -54,7 +57,7 @@ class makeImg:
 if __name__ == '__main__':
     prompt = "a horse running through a field"
     test_obj = makeImg()
-    test_obj.run(prompt)
+    test_obj.run(prompt, "result")
 
 
 
