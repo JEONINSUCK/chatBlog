@@ -1,0 +1,37 @@
+{
+    "AUTH" : {
+        "GPT3_API_KEY": "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",
+        "GPT4_API_KEY": "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",
+        "GOOGLE_API_KEY" : "",
+        "PYKAKAO_API_KEY" : "",
+        "TISTORY_APP_ID" : "357d9f84e2029c20907e0b25d87cb631",
+        "TISTORY_SECRET_KEY" : "357d9f84e2029c20907e0b25d87cb63124a5df63bd5fe2135f8141848a03266278a15c67",
+        "TISTORY_URL" : "https://slackers.tistory.com/",
+        "TISTORY_AUTH_URL" : "https://www.tistory.com/oauth/access_token?",
+        "TISTORY_INFO_URL" : "https://www.tistory.com/apis/blog/info?",
+        "TISTORY_CATEGORY_URL" : "https://www.tistory.com/apis/category/list?",
+        "TISTORY_LIST_URL" : "https://www.tistory.com/apis/post/list?",
+        "TISTORY_GET_URL" : "https://www.tistory.com/apis/post/read?",
+        "TISTORY_POST_URL" :"https://www.tistory.com/apis/post/write?",
+        "TISTORY_CODE" : "74dd6fecb130b0ecc11cb3b34a9676251895e49d3d7c5886b4485c4d066da43243273f8b",
+        "TISTORY_ACCESS_TOKEN" : "546b5f9894814dc09611e99cfb57a0c1_316fe215ab3f12e33d40b14438c512b7",
+        "SLACK_OAUTH_TOKEN" : "xoxb-5496371355202-5498170463362-VAZLkMewwawMtnSOXLXHzson",
+        "SLACK_ID" : "C05EFHDA6F8",
+        "SLACK_CHANNEL_NAME" : "api-test",
+        "SLACK_WEBHOOK_APP_URL" : "https://hooks.slack.com/services/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",
+        "SLACK_WEBHOOK_CHENNEL_URL" : "https://hooks.slack.com/services/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"
+    },
+    
+    "CONF" : {
+        "GPT3_MODLE" : "gpt-3.5-turbo",
+        "GPT4_MODLE" : "gpt-4",
+        "BLOG_POST_PATH" : "./blogPost/",
+        "MEMORY_PATH" : "./memory/",
+        "TITLES_PATH" : "titles/",
+        "CONTENTS_PATH" : "contents/",
+        "APPROVE_ACT_VAL" : "post_approve",
+        "DENY_ACT_VAL" : "post_deny",
+        "URL_ACT_VAL" : "post_url",
+        "INPUT_ACT_VAL" : "input"
+    }
+}
