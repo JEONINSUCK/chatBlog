@@ -1,18 +1,17 @@
 from datetime import datetime
 from requests.exceptions import ConnectionError
-# from lib.image import *
+
 try:
-    from common import *
+    from logger import *
 except Exception as e:
-    from src.common import *
+    from lib.logger import *
 
-import openai
-import json
-import os
-import re
-import time
+from dotenv import load_dotenv
+load_dotenv()
 
-# from sumy.summarizers.lex_rank import LexRankSummarizer
+# import openai
+import json, os, re, time
+from openai import OpenAI
 
 # ASSIST_QUERY_BASE = "위 글은 블로그 게시글이야. 게시글이 입력되면 부족한 부분을 구체적으로 피드백 해줘."
 ASSIST_QUERY_BASE = "위 블로그 게시글에서 부족한 부분을 구체적으로 피드백 해줘. 100자 이하로 말해줘."
@@ -31,25 +30,32 @@ ADV_QUERY_BASE = "위에서 피드백 받은 것을 바탕으로 구글 SEO에 �
                 마지막에 결론도 도출해줘. \
                 게시글에 필요하지 않은 말들은 빼줘."
 SUMMARIZE_SENTENSE= "위 글을 20자 이하로 요약해줘."
-# load config.json data
-with open("./config.json", "r", encoding="utf-8-sig") as f:
-    config = json.load(f)
 
-# # set API key & GPT model
-open_ai_key = config['AUTH']['GPT3_API_KEY']
-model = config['CONF']['GPT3_MODLE']
 
-# # gpt-4 model setup
-# open_ai_key = config['AUTH']['GPT4_API_KEY']
-# model = config['CONF']['GPT4_MODLE']
 
 logger = Mylogger()
 
-class makeContent:
+class BlogGPT:
+    
     def __init__(self):
-        self.tokenTool = tokenUtility()
-        self.convModule = translator()
-        openai.api_key = open_ai_key
+        
+        self.client = OpenAI(
+            # This is the default and can be omitted
+            api_key = os.environ.get("GPT_API_KEY", ""),
+        )
+        
+        # openai.api_key = 
+        # if not openai.api_key:
+        #     raise ValueError("API key")
+        
+        self.model = os.environ.get("GPT_MODLE", "")
+        
+        if not self.model:
+            raise ValueError("API key")
+
+        self.tokenTool = tokenUtility(model=self.model)
+        # self.convModule = translator()
+        
         self.query = ""
         self.answer = ""
         self.conv_answer = ""
@@ -57,7 +63,7 @@ class makeContent:
         self.parse_answer = []
         self.write_string = ""
 
-    def querySend(self, querys: list, system="", assistant=[]):
+    def querySend(self, querys=[], system="", assistant=[]):
         try:
             messages = []
 
@@ -93,33 +99,43 @@ class makeContent:
             start_time = time.time()
             # query to chatGPT model
             try:
-                response = openai.ChatCompletion.create(
-                    model = model,
+                response = self.client.chat.completions.create(
+                    model = self.model,
                     messages = messages,
                     # temperature = 0.3
-                    request_timeout=180
+                    # request_timeout=180
+                    timeout=180
                 )
             except ConnectionError:
                 logger.error(e)
             end_time = time.time()
 
-            if 'choices' in response:
+            if response.choices:
                 # parse answer and translate
-                conv_answer = response['choices'][0]['message']['content']
-                # conv_answer = self.convModule.convKO(answer).text
+                is_error = False
+                reply = ""
+                for cohice in response.choices:
+                    
+                    if cohice.finish_reason != "stop":
+                        is_error = True
+                    print(cohice.message.content)
+                    reply += cohice.message.content
                 
                 # calculation token num and price
                 token_num = 0
                 token_price = 0
+                
                 for i in range(len(querys)):
                     token_num += self.tokenTool.getTokenNum(querys[i])
                     token_price += self.tokenTool.calcTokenPrice(token_num)
 
                 logger.info("token num: {0}, token price: {1}, time: {2}".format(token_num, token_price, end_time-start_time))
                 
-                return {"response" : conv_answer, 
-                        "token" : token_num,
-                        "price" : token_price}
+                return {
+                    "response" : reply, 
+                    "token" : token_num,
+                    "price" : token_price
+                }
             else:
                 return ERRORCODE._QUERY_RES_ERR
         
@@ -290,59 +306,30 @@ class makeContent:
         logger.info("[+] makeImg OK...")
 
 
-    def getThemeSrc(self):
-        try:
-            dir_path = os.path.join(config['CONF']['MEMORY_PATH'], config['CONF']['TITLES_PATH'])
-            return os.listdir(dir_path)
-        except Exception as e:
-            logger.error("[-] Get theme source FAIL")
-            logger.error("getThemeSrc funcing exception: {0}".format(e)) 
-
-    def titleStatusUpdate(self, theme):
-        try:
-            file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['TITLES_PATH'], theme])
-
-            # using category title update to file
-            with open(file_path, 'w') as f:
-                f.write(self.write_string)
-        except Exception as e:
-            logger.error("[-] Update title status FAIL")
-            logger.error("titleStatusUpdate funcing exception: {0}".format(e))
-
-    def getTitleSrc(self, theme):
+    def query(self, theme):
         try:
             logger.info("[+] Get category title run...")
-            write_string = ""
-            first_find = True
 
-            # file check
-            file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['TITLES_PATH'], theme])
-            dir_path = os.path.dirname(file_path)
-            if not os.path.exists(dir_path):
-                logger.info("[-] Category title file not exist...")
-                return ERRORCODE._THEME_NOT_EXIST
-            else:
-                # used category title check
-                with open(file_path, 'r') as f:
-                    for line in f.readlines():
-                        if line.find("[used]") == -1 and first_find:
-                            category_title = line.split('.')
-                            category_title = category_title[1].replace("\n", "").strip()
+            # used category title check
+            with open(file_path, 'r') as f:
+                for line in f.readlines():
+                    if line.find("[used]") == -1 and first_find:
+                        category_title = line.split('.')
+                        category_title = category_title[1].replace("\n", "").strip()
 
-                            write_string += line.replace("\n", "\t[used]\n")
+                        write_string += line.replace("\n", "\t[used]\n")
 
-                            first_find = False
-                        else:
-                            write_string += line
+                        first_find = False
+                    else:
+                        write_string += line
 
-                    if first_find == True:
-                        return ERRORCODE._TITLE_USED
-                    
-                self.write_string = write_string
+                if first_find == True:
+                    return ERRORCODE._TITLE_USED
+                
+            self.write_string = write_string
 
-                logger.info(category_title)
-                logger.info("[+] Get category title OK...")
-                return category_title
+            logger.info(category_title)
+            logger.info("[+] Get category title OK...")
             
         except Exception as e:
             logger.error("[-] Get category title FAIL")
@@ -405,54 +392,7 @@ class makeContent:
         main_answer['response'] = "\n".join(sp_datas)
         print(main_answer['response'])
 
-
 if __name__ == '__main__':
-    test_makeContent = makeContent()
-    test_tokenTool = tokenUtility()    
-    
-    test_makeContent.setTheme("헬스")
-    # # test_makeContent.makeCategory()
-    title = test_makeContent.getTitleSrc("헬스")
-    # test_makeContent.makeContent(title)
-    # test_makeContent.testquery(title)
-    # for theme in test_makeContent.getThemeSrc():
-    #     if test_makeContent.getTitleSrc(theme) == ERRORCODE._TITLE_USED:
-    #         print("not exist using title")
+    bot = BlogGPT()
+    bot.querySend()
 
-    file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], title, "post_text"])
-    with open(file_path, 'r') as f:
-        data = f.read()
-
-        sp_datas = data.split("\n")
-        for sp_data in sp_datas:
-            if sp_data != '':
-                test_makeContent.getSubTitle(sp_data) 
-    #     summarizer_lex = LexRankSummarizer()
-
-    #     # Summarize using sumy LexRank
-    #     summary= summarizer_lex(sp_datas[1], 2)
-    #     lex_summary=""
-    #     for sentence in summary:
-    #         lex_summary += str(sentence)
-    #     print(lex_summary)
-
-        # test_makeContent.makeImg(sp_datas, title=title)
-
-        # for sp_data in sp_datas[1:]:
-        #     print(sp_data)
-        #     print(summarize(sp_data))
-    #     rm_datas = ["제목:", "피드백", "SEO", "3000자", "다시 작성"]
-    #     print(title[:-5])
-        
-    #     for sp_data in sp_datas[:5]:
-    #         for rm_data in rm_datas:
-    #             if sp_data.find(rm_data) != -1:
-    #                 print("find 1")
-    #                 if sp_data in sp_datas:
-    #                     print("find")
-    #                     sp_datas.remove(sp_data)
-    #                 else:
-    #                     print("nop")
-    #                 # sp_datas.remove(sp_data)
-    #     result= "".join(sp_datas)
-    #     print(result)

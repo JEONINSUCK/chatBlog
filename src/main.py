@@ -4,15 +4,15 @@ from urllib import parse
 from datetime import datetime
 from queue import Queue
 try:
-    from makeContent import makeContent
-    from postBlog import postBlog
+    from lib.botGPT import makeContent
+    from lib.blogTistory import postBlog
     from slackBot import Bot
-    from common import *
+    from lib.logger import *
 except ModuleNotFoundError as e:
-    from src.makeContent import makeContent
-    from src.postBlog import postBlog
+    from lib.botGPT import makeContent
+    from lib.blogTistory import postBlog
     from src.slackBot import Bot
-    from src.common import *
+    from lib.logger import *
 
 import logging
 import json

@@ -1,19 +1,13 @@
 from datetime import datetime
-from googletrans import Translator
+# from googletrans import Translator
 
 import enum
 import logging
-import tiktoken
+# import tiktoken
 import json
 
 EXCHANGE_RATE = 1200
 DEFUALT_TOKEN = 1000
-
-# load config.json data
-with open("./config.json", "r", encoding="utf-8-sig") as f:
-    config = json.load(f)
-
-model = config['CONF']['GPT3_MODLE']
 
 class ERRORCODE(enum.Enum):
     _SUCCESS = 1
@@ -76,22 +70,24 @@ class Mylogger:
 
         self.log.error(data)
 
-class translator:
-    def __init__(self) -> None:
-        self.translator = Translator()
+# class translator:
+#     def __init__(self) -> None:
+#         self.translator = Translator()
 
 
-    def convEN(self, koData: str) -> str:
-        return self.translator.translate(koData, src='ko', dest='en')
+#     def convEN(self, koData: str) -> str:
+#         return self.translator.translate(koData, src='ko', dest='en')
 
-    def convKO(self, enData: str) -> str:
-        return self.translator.translate(enData, src='en', dest='ko')
+#     def convKO(self, enData: str) -> str:
+#         return self.translator.translate(enData, src='en', dest='ko')
 
 class tokenUtility:
-    def __init__(self):
+    
+    def __init__(self, model=''):
         try:
+            self.model = model
             self.logger = Mylogger()
-            self.encoding_name = tiktoken.encoding_for_model(model)
+            # self.encoding_name = tiktoken.encoding_for_model(self.model)
         except Exception as e:
             self.logger.error("tokenUtility __init__ funcing exception: {0}".format(e))
     
@@ -105,17 +101,17 @@ class tokenUtility:
 
     def calcTokenPrice(self, token_num : int) -> float:
         try:
-            if model == "gpt-3.5-turbo":
+            if self.model == "gpt-3.5-turbo":
                 return 0.002 / DEFUALT_TOKEN * token_num * EXCHANGE_RATE
-            elif model == "gpt-3.5-turbo-0301":
+            elif self.model == "gpt-3.5-turbo-0301":
                 return 0.002 / DEFUALT_TOKEN * token_num * EXCHANGE_RATE
-            elif model == "Ada":
+            elif self.model == "Ada":
                 return 0.004 / DEFUALT_TOKEN * token_num * EXCHANGE_RATE
-            elif model == "Babbage":
+            elif self.model == "Babbage":
                 return 0.005 / DEFUALT_TOKEN * token_num * EXCHANGE_RATE
-            elif model == "Curie":
+            elif self.model == "Curie":
                 return 0.02 / DEFUALT_TOKEN * token_num * EXCHANGE_RATE
-            elif model == "Davinci":
+            elif self.model == "Davinci":
                 return 0.2 / DEFUALT_TOKEN * token_num * EXCHANGE_RATE
             else:
                 return -1

@@ -1,10 +1,10 @@
 from datetime import datetime
 try:
-    from common import *
-    from postBlog import postBlog
+    from lib.logger import *
+    from lib.blogTistory import postBlog
 except Exception as e:
-    from src.common import *
-    from src.postBlog import postBlog
+    from lib.logger import *
+    from lib.blogTistory import postBlog
 import json
 import requests
 
