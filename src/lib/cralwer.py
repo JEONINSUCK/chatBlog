@@ -3,7 +3,7 @@ try:
 except Exception as e:
     from lib.logger import *
 
-import requests, re, os, sys
+import requests, re, os
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -22,13 +22,13 @@ class BlogManager:
         # tistory
         self.tistory_app_id = os.environ.get("TISTORY_APP_ID", "")
         self.tistory_secret_key = os.environ.get("TISTORY_SECRET_KEY", "")
-        self.tistory_access_code = os.environ.get("TISTORY_ACCESS_CODE", "")
         
         # prefix
         self.blog_url = os.environ.get("TISTORY_BLOG_URL", "")
         self.tistory_url = os.environ.get("TISTORY_URL", "")
         
         # var
+        self.tistory_access_code = ''
         self.tistory_access_token = ''
         self.blog_info = {}
         self.categorys_dict = {}
@@ -124,34 +124,24 @@ class BlogManager:
             
             if not self.tistory_access_code:
                 self.getAccessCode()
-            
-            if os.path.isfile('token'):
-                self.tistory_access_token = open("token").read()
                 
-            else:
-                # set url parameter
-                params = {
-                    'client_id' : self.tistory_app_id,
-                    'client_secret' : self.tistory_secret_key,
-                    'redirect_uri' : self.blog_url,
-                    'code' : self.tistory_access_code,
-                    'grant_type' : 'authorization_code'
-                }
+            # set url parameter
+            params = {
+                'client_id' : self.tistory_app_id,
+                'client_secret' : self.tistory_secret_key,
+                'redirect_uri' : self.blog_url,
+                'code' : self.tistory_access_code,
+                'grant_type' : 'authorization_code'
+            }
 
-                # request get url
-                res = requests.get(f"{self.tistory_url}/oauth/access_token", params=params)
-                if res.status_code == 200:
-                    self.logger.info("[+] Get access token OK...")
-                    self.tistory_access_token = res.text.replace('access_token=','')
-                    
-                    f = open("token", "w").write(self.tistory_access_token)
-                    f.close()
-                else:
-                    link = f"{self.tistory_url}/oauth/authorize?client_id={self.tistory_app_id}&redirect_uri={self.blog_url}&response_type=code"
-                    self.logger.info(f"try visit this link : {link}")
-                    
-                    self.logger.info("[-] Get request ERR...")
-                    self.logger.info(f"{ERRORCODE._REQUEST_GET_ERR}, {res.text}")
+            # request get url
+            res = requests.get(f"{self.tistory_url}/oauth/access_token", params=params)
+            if res.status_code == 200:
+                self.logger.info("[+] Get access token OK...")
+                self.tistory_access_token = res.text.replace('access_token=','')
+            else:
+                self.logger.info("[-] Get request ERR...")
+                self.logger.info(f"{ERRORCODE._REQUEST_GET_ERR}, {res.text}")
         except Exception as e:
             self.logger.error("[-] Get access token FAIL...")
             self.logger.error("getAccessToken funcing exception: {0}".format(e))
@@ -176,8 +166,7 @@ class BlogManager:
                 'Accept-Encoding': 'gzip, deflate, br',
                 'Accept-Language': 'en-US,en;q=0.9,ko;q=0.8',
                 'Cache-Control': 'max-age=0',
-                # 'Cookie' : '',
-                # 'Cookie': '_clck=6p71b0|2|fd5|0|1285; __T_=1; TSAL=1; TSSESSION=a7ef8a86edb1ab5b6c18fa3c90907202f498da2c;',
+                'Cookie': '_clck=6p71b0|2|fd5|0|1285; TOP-XSRF-TOKEN=235c969f-cba2-43a5-8afe-85159f9516b8; __T_=1; FCNEC=%5B%5B%22AKsRol_lO-fm-vQqwwn0WH66vKdOLkkmX9nWpc4Ec_tTIzAV1vCgclAduufY0zTlBUvJNY3cH7aW81NQiK9EFkEPEmnyvTT3jjgkLSYncLagS6cbxyTV_lBya-USfvPgEbXi7Bp_exsNywkXYcXL2A6Tc-LLaTMxVg%3D%3D%22%5D%2Cnull%2C%5B%5D%5D; TSAL=1; TSSESSION=82d1b88a32526fb240c5eda1610e20c06b5094ff; _T_ANO=nwtekqCGnG+NyW5lKg+31Pnygno2cmXk7yCPEhu3sS20x5C203+RB7qsAFB7STJXmQ3DfLAWhUBA4PQWhzif2w3Hl/w2k9PVFI95+X1pKtFrC0UGvQQ8DsZg6jO7hEHrMShbuGeqdXcJVBDv/LOfpKPi+bEIjEJ0qdDSRVbfwR35sIpYw/rxmnuA3Q3rbEkcA7GAkmlzjx4CzwVMYpstWGEkhAuAQiNDJCDKJH8pCmOEwRypG84HGN0wbxeb8XrbcGG7n6ox4AWI/4pil2XczH3FlgY6tS70q85ZytdDJBJgCNwZUyMK9X1IGYEyPF3Z/Iqwb84eIVj0RXO3bO7mYw==;',
                 'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
                 'Sec-Ch-Ua-Mobile': '?0',
                 'Sec-Ch-Ua-Platform': '"macOS"',
@@ -189,6 +178,7 @@ class BlogManager:
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             }
 
+
             # request get url
             res = requests.get(f"{self.tistory_url}/oauth/authorize", params=params, headers=headers)
             
@@ -199,20 +189,15 @@ class BlogManager:
                 matches = re.finditer(r"code=(.*)&", res.text, re.MULTILINE)
 
                 for matchNum, match in enumerate(matches, start=1):
-                    self.logger.info("Match {matchNum} was found at {start}-{end}: {match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
+                    self.logger.debug("Match {matchNum} was found at {start}-{end}: {match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
                     self.tistory_access_code = match.groups()[len(match.groups()) - 1]
                         
                 if self.tistory_access_code == '':
-                    self.logger.error("Invalid access code")
-                    link = f"{self.tistory_url}/oauth/authorize?client_id={self.tistory_app_id}&redirect_uri={self.blog_url}&response_type=code"
-                    self.logger.info(f"try visit this link : {link}")
-                    
-                    sys.exit(0)
+                    raise ValueError("Invalid access code")
 
                 self.logger.info("[+] Get access code OK...")
                 
             else:
-                
                 link = f"{self.tistory_url}/oauth/authorize?client_id={self.tistory_app_id}&redirect_uri={self.blog_url}&response_type=code"
                 self.logger.info(f"try visit this link : {link}")
                 self.logger.info("[-] Get request ERR...")
@@ -314,8 +299,10 @@ if __name__ == '__main__':
     
     print(f"blog.listPost() : {rv}")
     
-    # post = blog.writePost("test title", "test content", "일상")
-    # rv = blog.readPost(post["postId"])
-    # print(f"blog.readPost() : {rv}")
+    post = blog.writePost("test title", "test content", "일상")
     
-    # print(rv)
+    rv = blog.readPost(post["postId"])
+    
+    print(f"blog.readPost() : {rv}")
+    
+    print(rv)
