@@ -226,6 +226,8 @@ class chatBlog:
                         if self.button_request_proc() == ERRORCODE._BT_APPROVE:
                             res = self.gpt_bot.makeContent(self.title)
                             if type(res) is dict:
+                                sub_title_list = self.gpt_bot.getSubTitle(res['response'])           # get sub titles in format list
+                                self.gpt_bot.getTitleImage(sub_title_list, self.title)               # download sub titles images
                                 self.gpt_bot.titleStatusUpdate(self.theme)
                                 blog_url = self.post_blog()
                                 self.slack_bot.sendPostMsg(self.theme,

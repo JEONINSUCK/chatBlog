@@ -1,5 +1,8 @@
 from datetime import datetime
+import requests
+import urllib.request
 from requests.exceptions import ConnectionError
+from googletrans import Translator
 # from lib.image import *
 try:
     from common import *
@@ -115,11 +118,12 @@ class makeContent:
                     token_num += self.tokenTool.getTokenNum(querys[i])
                     token_price += self.tokenTool.calcTokenPrice(token_num)
 
-                logger.info("token num: {0}, token price: {1}, time: {2}".format(token_num, token_price, end_time-start_time))
+                logger.info("token num: {0}, token price: {1}".format(token_num, token_price))
                 
                 return {"response" : conv_answer, 
                         "token" : token_num,
-                        "price" : token_price}
+                        "price" : token_price,
+                        "time" : f"{end_time - start_time:.2f}"}
             else:
                 return ERRORCODE._QUERY_RES_ERR
         
@@ -144,7 +148,7 @@ class makeContent:
             except Exception as e:
                 logger.error("[-] Query send FAIL")
                 return ERRORCODE._QUERY_FAIL
-            now = datetime.now()
+            now = datetime.datetime.now()
             today = now.date().strftime("%Y-%m-%d")
             today_time = now.time().strftime("%H:%M:%S")
             # file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], theme, today, today_time])
@@ -171,7 +175,7 @@ class makeContent:
             with open(file_path, 'a') as f:
                 f.write(write_string)
 
-            logger.info("[+] Make title Ok...")
+            logger.info(f"[+] Make title Ok..., time: {response['time']}")
             return response
         
         except Exception as e:
@@ -203,21 +207,22 @@ class makeContent:
                 main_answer = self.querySend([self.query], system=SYSTEM_QUERY_BASE.format(self.theme))
                 if type(main_answer) is not dict:
                     return main_answer
-                logger.info("[+] Main query receive OK...")
+                logger.info(f"[+] Main query receive OK..., time: {main_answer['time']}")
                 
                 # feedback query
-                assist_answer = self.querySend([self.query, ASSIST_QUERY_BASE], system=SYSTEM_QUERY_BASE.format(self.theme), assistant=[main_answer['response']])
-                if type(assist_answer) is not dict:
-                    return assist_answer
-                logger.info("[+] Feedback query receive OK...")
+                # assist_answer = self.querySend([self.query, ASSIST_QUERY_BASE], system=SYSTEM_QUERY_BASE.format(self.theme), assistant=[main_answer['response']])
+                # if type(assist_answer) is not dict:
+                #     return assist_answer
+                # logger.info(f"[+] Feedback query receive OK..., time: {assist_answer['time']}")
                 
-                # advanced query
-                querys = [self.query, ASSIST_QUERY_BASE, ADV_QUERY_BASE]
-                assistant = [main_answer['response'], assist_answer['response']]
-                adv_answer = self.querySend(querys=querys, system=SYSTEM_QUERY_BASE.format(self.theme), assistant=assistant)
-                if type(adv_answer) is not dict:
-                    return adv_answer
-                logger.info("[+] Advanced query receive OK...")
+                # # advanced query
+                # querys = [self.query, ASSIST_QUERY_BASE, ADV_QUERY_BASE]
+                # assistant = [main_answer['response'], assist_answer['response']]
+                # adv_answer = self.querySend(querys=querys, system=SYSTEM_QUERY_BASE.format(self.theme), assistant=assistant)
+                # if type(adv_answer) is not dict:
+                #     return adv_answer
+                # logger.info(f"[+] Advanced query receive OK..., time: {adv_answer['time']}")
+                adv_answer = main_answer
                 
             except Exception as e:
                 logger.error("[-] Query send FAIL")
@@ -225,10 +230,9 @@ class makeContent:
                 return ERRORCODE._QUERY_FAIL
 
             try:
-                print(adv_answer['response'])
                 # remove unnecessary string
                 sp_datas = adv_answer['response'].split('\n')
-                rm_datas = ["제목:", "피드백", "SEO", "3000자", "다시 작성"]
+                rm_datas = ["제목:", "피드백", "SEO", "3000자", "다시 작성", "20대 여성"]
             
                 for sp_data in sp_datas[:5]:
                     for rm_data in rm_datas:
@@ -348,19 +352,59 @@ class makeContent:
             logger.error("[-] Get category title FAIL")
             logger.error("getTitleSrc funcing exception: {0}".format(e))                
     
-    def getSubTitle(self, contents):        
-        patten_pkg = ["^\d[.].[:]", "^\d[.].[!]", ".[!]", "^\d[.].[.]", "\d[:]","[*]+."]
-        for patten in patten_pkg:
-            re_compile = re.compile(patten)
-            if re_compile.search(contents[:10]) != None:
-                print(self.filt_hangul(contents))
-                # print(patten, contents)
-                return contents
-            else:
-                ERRORCODE._NOT_MATCH
+    def getTitleImage(self, sub_titles, title):
+        try:
+            logger.info("[+] Get sub title image run...")
+            access_key = config['AUTH']['UNSPLASH_ACCESS_KEY']
+            count = 2
+
+            for sub_title in sub_titles:
+                conv_title = self.convModule.convEN(sub_title).text
+                
+                logger.info(f"Ko_title: {sub_title}, En_title: {conv_title}")
+                
+                url = f'https://api.unsplash.com/photos/random?count={count}&query={conv_title}&client_id={access_key}'
+                # url = f'https://api.unsplash.com/photos/?per_page={per_page}&query={conv_title}&client_id={access_key}'
+
+                response = requests.get(url)
+                search_data = response.json()
+                download_url = search_data.pop()['links']['download_location']
+                download_url = f'{download_url}&client_id={access_key}'
+
+                response = requests.get(download_url, allow_redirects=True)
+                # logger.debug(f"Download URL: {response.json()['url']}")
+
+                file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], title, conv_title])
+                urllib.request.urlretrieve(response.json()['url'], f"{file_path}.jpg")
+                logger.debug(f"Download Image: {file_path}.jpg")
+            logger.info("[+] Get sub title image OK...")
+        except Exception as e:
+            logger.error("[-] Get sub title image FAIL")
+            logger.error("getTitleImage funcing exception: {0}".format(e))
+
+    def getSubTitle(self, contents):
+        try:
+            logger.info("[+] Get sub title run...")
+            # matching pattern define
+            pattern_pkg = ["\d+\..*?:", "\d[.].*[:]", "^\d[.].[!]", "^\d[.].[.]", "\d[:]","[*]+."]
+            sub_titles = []
+            sp_datas = contents.split("\n")
+            for sp_data in sp_datas:
+                if sp_data != '':
+                    for pattern in pattern_pkg:            
+                        subtitles = re.findall(pattern, sp_data[:15])
+                        if len(subtitles) != 0:
+                            sub_titles.append(self.extract_korean(subtitles.pop().strip()))
+                            break
+            logger.info("[+] Get sub title OK...")
+            return sub_titles
+        except Exception as e:
+            logger.error("[-] Get sub title FAIL")
+            logger.error("getSubTitle funcing exception: {0}".format(e))
     
-    def filt_hangul(self, text):
-        return re.sub("\uAC00-\uD7A30", "", text)
+    def extract_korean(self, text):
+        korean_pattern = re.compile('[^가-힣\s]')
+        return korean_pattern.sub('', text)
 
     def setTheme(self, theme):
         self.theme = theme
@@ -405,6 +449,16 @@ class makeContent:
         main_answer['response'] = "\n".join(sp_datas)
         print(main_answer['response'])
 
+class translator:
+    def __init__(self) -> None:
+        self.translator = Translator()
+
+
+    def convEN(self, koData: str) -> str:
+        return self.translator.translate(koData, src='ko', dest='en')
+
+    def convKO(self, enData: str) -> str:
+        return self.translator.translate(enData, src='en', dest='ko')
 
 if __name__ == '__main__':
     test_makeContent = makeContent()
@@ -413,22 +467,23 @@ if __name__ == '__main__':
     test_makeContent.setTheme("헬스")
     # # test_makeContent.makeCategory()
     title = test_makeContent.getTitleSrc("헬스")
-    # test_makeContent.makeContent(title)
+    test_makeContent.makeContent(title)
     # test_makeContent.testquery(title)
     # for theme in test_makeContent.getThemeSrc():
     #     if test_makeContent.getTitleSrc(theme) == ERRORCODE._TITLE_USED:
     #         print("not exist using title")
 
+    sub_titles = []
     file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], config['CONF']['CONTENTS_PATH'], title, "post_text"])
     with open(file_path, 'r') as f:
         data = f.read()
 
-        sp_datas = data.split("\n")
-        for sp_data in sp_datas:
-            if sp_data != '':
-                test_makeContent.getSubTitle(sp_data) 
-    #     summarizer_lex = LexRankSummarizer()
+        print(test_makeContent.getSubTitle(data))
+                    
+        # test_makeContent.getTitleImage(sub_titles[0], title)
 
+    
+    #     summarizer_lex = LexRankSummarizer()
     #     # Summarize using sumy LexRank
     #     summary= summarizer_lex(sp_datas[1], 2)
     #     lex_summary=""

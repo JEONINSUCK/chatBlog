@@ -1,0 +1,40 @@
+{
+    "AUTH" : {
+        "GPT3_API_KEY": "",
+        "GPT4_API_KEY": "",
+        "GOOGLE_API_KEY" : "",
+        "PYKAKAO_API_KEY" : "",
+        "TISTORY_APP_ID" : "",
+        "TISTORY_SECRET_KEY" : "",
+        "TISTORY_URL" : "",
+        "TISTORY_AUTH_URL" : "",
+        "TISTORY_INFO_URL" : "",
+        "TISTORY_CATEGORY_URL" : "",
+        "TISTORY_LIST_URL" : "",
+        "TISTORY_GET_URL" : "",
+        "TISTORY_POST_URL" :"",
+        "TISTORY_CODE" : "",
+        "TISTORY_ACCESS_TOKEN" : "",
+        "SLACK_OAUTH_TOKEN" : "",
+        "SLACK_ID" : "",
+        "SLACK_CHANNEL_NAME" : "",
+        "SLACK_WEBHOOK_APP_URL" : "",
+        "SLACK_WEBHOOK_CHENNEL_URL" : "",
+        "UNSPLASH_APPLICATION_ID" : 0,
+        "UNSPLASH_ACCESS_KEY": "",
+        "UNSPLASH_SECRET_KEY": ""
+    },
+    
+    "CONF" : {
+        "GPT3_MODLE" : "",
+        "GPT4_MODLE" : "",
+        "BLOG_POST_PATH" : "",
+        "MEMORY_PATH" : "",
+        "TITLES_PATH" : "",
+        "CONTENTS_PATH" : "",
+        "APPROVE_ACT_VAL" : "",
+        "DENY_ACT_VAL" : "",
+        "URL_ACT_VAL" : "",
+        "INPUT_ACT_VAL" : ""
+    }
+}
