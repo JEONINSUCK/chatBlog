@@ -1,6 +1,6 @@
 {
     "AUTH" : {
-        "GPT3_API_KEY": "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",
+        "GPT3_API_KEY": "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",
         "GPT4_API_KEY": "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",
         "GOOGLE_API_KEY" : "",
         "PYKAKAO_API_KEY" : "",
@@ -15,14 +15,17 @@
         "TISTORY_POST_URL" :"https://www.tistory.com/apis/post/write?",
         "TISTORY_CODE" : "74dd6fecb130b0ecc11cb3b34a9676251895e49d3d7c5886b4485c4d066da43243273f8b",
         "TISTORY_ACCESS_TOKEN" : "546b5f9894814dc09611e99cfb57a0c1_316fe215ab3f12e33d40b14438c512b7",
-        "SLACK_OAUTH_TOKEN" : "xoxb-5496371355202-5498170463362-mEQqL1zRvU3OVfArQBeTSp9t",
+        "SLACK_OAUTH_TOKEN" : "xoxb-5496371355202-5498170463362-xM82XpbzfmTxepoVTSzhw2JO",
         "SLACK_ID" : "C05EFHDA6F8",
         "SLACK_CHANNEL_NAME" : "api-test",
         "SLACK_WEBHOOK_APP_URL" : "https://hooks.slack.com/services/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",
-        "SLACK_WEBHOOK_CHENNEL_URL" : "https://hooks.slack.com/services/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",
+        "SLACK_WEBHOOK_CHENNEL_URL" : "https://hooks.slack.com/services/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",
         "UNSPLASH_APPLICATION_ID" : 559266,
         "UNSPLASH_ACCESS_KEY": "URsrUWClrkqktQrQNJFo2QFZ9UdOmc0dcnxRqsQX50I",
-        "UNSPLASH_SECRET_KEY": "redLnuEFLaiMJ5oKvqCuEDGHsmAbVt6Pgt70Mm0jmM0"
+        "UNSPLASH_SECRET_KEY": "redLnuEFLaiMJ5oKvqCuEDGHsmAbVt6Pgt70Mm0jmM0",
+        "NOTION_SECRET_KEY": "secret_Ya6Cu1QFDC44zECMJKOrGRrh1jA6D6qQDpKNuUam0mM",
+        "NOTION_DB_ID": "8e215598a3cb4ae18ceea045ead3d8aa"
+
     },
     
     "CONF" : {

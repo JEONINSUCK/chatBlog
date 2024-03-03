@@ -22,7 +22,8 @@
         "SLACK_WEBHOOK_CHENNEL_URL" : "",
         "UNSPLASH_APPLICATION_ID" : 0,
         "UNSPLASH_ACCESS_KEY": "",
-        "UNSPLASH_SECRET_KEY": ""
+        "UNSPLASH_SECRET_KEY": "",
+        "NOTION_SECRET_KEY"
     },
     
     "CONF" : {

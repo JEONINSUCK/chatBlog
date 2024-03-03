@@ -24,15 +24,18 @@ CATEGORY_QUERY_BASE = "{0}에 관한 블로그 게시글을 작성할거야. \
                     전문적이면서 호기심을 자극하는 제목으로 부탁해. \
                     20대 상냥한 여자 말투로 말해줘. \
                     이모티콘도 추가해줘."
-CONTENT_QUERY_BASE = "{0}에 관한 블로그 게시글을 작성할거야. {1}을 주제로한 전문적인 블로그 글을 작성해 줘. 20대 친근한 여성의 말투로 대답해 줘. 리스트 형식으로 작성해 줘. "
+CONTENT_QUERY_BASE = "{0}에 관한 블로그 게시글을 작성할거야. {1}을 주제로한 전문적인 블로그 글을 작성하고 싶어. \
+                    20대 친근한 여성의 말투로 글을 작속하고 싶어. \
+                    글은 리스트 형식으로 작성 하려고 해. \
+                    그리고 문단마다 '^\d+\.\s.*\.' 형태의 정규식에 맞게 명사형의 부제목도 붙이고 싶어. \
+                    글자수는 1000자 정도로 작성하고 싶어. \
+                    글이 구글 SEO에 맞는 글이었으면 좋겠어. \
+                    다음과 같은 조건의 블로그 글을 작성해 줘."
 SYSTEM_QUERY_BASE = "{0}에 관한 전문 블로거야."
 SYSTEM_CONTENT_BASE = "You are a helpful assistant who is good at detailing."
 # ADV_QUERY_BASE = "다음 입력될 내용은 블로그 게시글과 피드백이야. 피드백 받은 것을 바탕으로 글을 다시 작성해줘."
-ADV_QUERY_BASE = "위에서 피드백 받은 것을 바탕으로 구글 SEO에 맞게 글을 다시 작성해줘. \
-                문단 마다 부제목도 붙여줘. \
-                글자수는 3000자 내외로 써줘. \
-                마지막에 결론도 도출해줘. \
-                게시글에 필요하지 않은 말들은 빼줘."
+ADV_QUERY_BASE = "위에서 피드백 받은 것을 바탕으로 글을 다시 작성해줘. \
+                 마지막에는 블로그에서 작성하는 마무리 멘트도 작성해 줘."
 SUMMARIZE_SENTENSE= "위 글을 20자 이하로 요약해줘."
 # load config.json data
 with open("./config.json", "r", encoding="utf-8-sig") as f:
@@ -148,7 +151,7 @@ class makeContent:
             except Exception as e:
                 logger.error("[-] Query send FAIL")
                 return ERRORCODE._QUERY_FAIL
-            now = datetime.datetime.now()
+            now = datetime.now()
             today = now.date().strftime("%Y-%m-%d")
             today_time = now.time().strftime("%H:%M:%S")
             # file_path = os.path.join(*[config['CONF']['MEMORY_PATH'], theme, today, today_time])
@@ -209,13 +212,13 @@ class makeContent:
                     return main_answer
                 logger.info(f"[+] Main query receive OK..., time: {main_answer['time']}")
                 
-                # feedback query
+                # # feedback query
                 # assist_answer = self.querySend([self.query, ASSIST_QUERY_BASE], system=SYSTEM_QUERY_BASE.format(self.theme), assistant=[main_answer['response']])
                 # if type(assist_answer) is not dict:
                 #     return assist_answer
                 # logger.info(f"[+] Feedback query receive OK..., time: {assist_answer['time']}")
                 
-                # # advanced query
+                # # # advanced query
                 # querys = [self.query, ASSIST_QUERY_BASE, ADV_QUERY_BASE]
                 # assistant = [main_answer['response'], assist_answer['response']]
                 # adv_answer = self.querySend(querys=querys, system=SYSTEM_QUERY_BASE.format(self.theme), assistant=assistant)
@@ -386,17 +389,18 @@ class makeContent:
         try:
             logger.info("[+] Get sub title run...")
             # matching pattern define
-            pattern_pkg = ["\d+\..*?:", "\d[.].*[:]", "^\d[.].[!]", "^\d[.].[.]", "\d[:]","[*]+."]
+            pattern_pkg = ["\d+\..*?:", "\d[.].*[:]", "^\d[.].[!]", "^\d[.].[.]", "\d[:]","[*]+.", "\d+\.\s.*", "\d+\.\s.*\."]
             sub_titles = []
             sp_datas = contents.split("\n")
             for sp_data in sp_datas:
                 if sp_data != '':
                     for pattern in pattern_pkg:            
-                        subtitles = re.findall(pattern, sp_data[:15])
+                        subtitles = re.findall(pattern, sp_data)
                         if len(subtitles) != 0:
                             sub_titles.append(self.extract_korean(subtitles.pop().strip()))
                             break
             logger.info("[+] Get sub title OK...")
+            logger.info(sub_titles)
             return sub_titles
         except Exception as e:
             logger.error("[-] Get sub title FAIL")
@@ -478,9 +482,10 @@ if __name__ == '__main__':
     with open(file_path, 'r') as f:
         data = f.read()
 
-        print(test_makeContent.getSubTitle(data))
+        # print(test_makeContent.getSubTitle(data))
+        sub_titles = test_makeContent.getSubTitle(data)
                     
-        # test_makeContent.getTitleImage(sub_titles[0], title)
+        test_makeContent.getTitleImage(sub_titles, title)
 
     
     #     summarizer_lex = LexRankSummarizer()
